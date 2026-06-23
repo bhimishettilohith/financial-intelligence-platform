@@ -1,0 +1,22 @@
+# Virtual Environment
+venv/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Environment Variables
+.env
+
+# Database
+*.db
+
+# Outputs
+output/*.csv
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
