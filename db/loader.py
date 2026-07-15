@@ -277,4 +277,4 @@ if __name__ == "__main__":
         "\nDatabase load completed successfully."
     )
 
-    conn.close()
+    conn.close()    
