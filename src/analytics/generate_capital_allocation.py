@@ -6,7 +6,7 @@ from src.analytics.cashflow_kpis import (
 )
 
 
-DB_PATH = "nifty100.db"
+DB_PATH =  "data/nifty100.db"
 OUTPUT_FILE = "output/capital_allocation.csv"
 
 

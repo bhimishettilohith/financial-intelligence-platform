@@ -34,7 +34,7 @@ from src.analytics.cashflow_kpis import (
     calculate_fcf_conversion
 )
 
-DB_PATH = "nifty100.db"
+DB_PATH = "data/nifty100.db"
 
 
 def clean(value):

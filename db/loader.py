@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 
 
-DB_PATH = Path("nifty100.db")
+DB_PATH = Path("data/nifty100.db")
 SCHEMA_PATH = Path("db/schema.sql")
 
 RAW_PATH = Path("data/raw")
