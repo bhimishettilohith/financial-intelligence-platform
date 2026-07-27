@@ -15,6 +15,20 @@ __pycache__/
 # Outputs
 output/*.csv
 
+# Generated charts
+output/_charts/
+
+# Generated PDFs
+output/tearsheets/
+output/sector/
+output/portfolio/
+
+# Generated reports
+output/reports/
+
+# Temporary Excel files
+~$*.xlsx
+
 # VS Code
 .vscode/
 
