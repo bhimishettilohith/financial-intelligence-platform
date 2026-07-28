@@ -1,1218 +1,1903 @@
 # 📊 Financial Intelligence Platform
 
-An End-to-End Financial Data Engineering & Analytics Platform built using Python, SQLite, and the financial statements of NIFTY 100 companies.
+> **An end-to-end financial analytics platform for the NIFTY 100 universe, combining data engineering, financial analysis, machine learning, REST APIs, interactive dashboards, and automated reporting.**
+
+
+## 🚀 Overview
+
+The **Financial Intelligence Platform** is a comprehensive financial analytics system designed to transform raw financial statement data into actionable investment intelligence.
+
+The platform automates the complete workflow from data ingestion and validation to financial ratio computation, company screening, peer benchmarking, cash flow intelligence, valuation analysis, report generation, REST API services, and interactive dashboards.
+
+Built using a modular architecture, the project processes financial data for **92 NIFTY 100 companies**, generates investment insights, produces analyst-ready PDF reports, exposes RESTful APIs using FastAPI, and provides interactive visualisations through Streamlit.
+
+The project was developed incrementally across **six development sprints**, with each sprint introducing new analytical capabilities and extending the platform into a production-style financial analysis solution.
+
+## 📈 Project Highlights
+
+| Feature | Details |
+|---------|---------|
+| 📊 Companies Analysed | 92 NIFTY 100 Companies |
+| 📄 Raw Data Sources | 12 Financial Datasets |
+| 🗄 Database | SQLite |
+| 📉 Financial Ratio Engine | 25+ Financial Metrics |
+| 🔍 Investment Screeners | 6 Preset Screeners + Custom Filters |
+| 🤝 Peer Groups | 11 Industry Peer Groups |
+| 📊 Radar Charts | Company vs Peer Comparison |
+| 💰 Cash Flow Intelligence | CFO Quality, CapEx, Distress Detection |
+| 🤖 NLP Engine | Automated Pros & Cons Generation |
+| 📑 Company Reports | 92 Two-Page PDF Tearsheets |
+| 🏢 Sector Reports | 11 Sector Summary PDFs |
+| 📚 Portfolio Reports | Portfolio Summary PDF |
+| 🌐 REST API | FastAPI with OpenAPI Documentation |
+| 📊 Dashboard | Interactive Streamlit Dashboard |
+| 🧪 Testing | Unit, API and Performance Tests |
+| 🏗 Development Model | Agile (6 Sprints) |
 
 ---
 
-# 📖 Project Overview
+# 🏗️ System Architecture
 
-The **Financial Intelligence Platform** is a comprehensive data engineering project designed to transform raw financial data into a structured, analytics-ready database capable of supporting financial analysis, screening, ranking, dashboards, and APIs.
-
-The project uses financial statements of NIFTY 100 companies collected from multiple Excel datasets. These datasets are processed through a robust ETL (Extract, Transform, Load) pipeline where the data is cleaned, validated, normalized, and stored in a relational SQLite database.
-
-Once the data foundation is established, the platform computes a wide range of financial Key Performance Indicators (KPIs), including profitability, leverage, efficiency, growth, and cash flow metrics. These KPIs form the foundation for company screening, financial health analysis, investment research, and business intelligence dashboards.
-
-The project follows an **Agile Scrum** methodology, where development is divided into six sprints. Each sprint focuses on a specific module, gradually building a complete Financial Intelligence Platform similar to those used by financial institutions and investment research firms.
-
----
-
-# 🎯 Project Objectives
-
-The primary objectives of this project are:
-
-- Build a robust ETL pipeline for loading financial datasets.
-- Validate data quality using configurable business rules.
-- Design a normalized SQLite database with referential integrity.
-- Compute more than 50 financial KPIs across multiple years.
-- Develop company screening and ranking capabilities.
-- Build REST APIs for financial data access.
-- Develop an interactive dashboard for financial analytics.
-- Follow software engineering best practices including testing, modularity, documentation, and version control.
-
----
-
-# 🚀 Key Features
-
-### Data Engineering
-
-- Automated Excel data ingestion
-- Data normalization and standardization
-- Validation using 16 Data Quality Rules
-- Automated ETL pipeline
-- SQLite database generation
-- Audit report generation
-
-### Financial Analytics
-
-- Profitability Ratios
-- Leverage Ratios
-- Efficiency Ratios
-- CAGR Engine
-- Cash Flow KPIs
-- Composite Quality Score
-- Capital Allocation Classification
-
-### Software Engineering
-
-- Modular Python architecture
-- Unit testing using PyTest
-- Git version control
-- Sprint-based development
-- Comprehensive documentation
-- Automated reporting
-
----
-
-# 🏗️ Project Architecture
-
-```
-                   Raw Excel Files
-                          │
-                          ▼
-                 ETL Loader & Parser
-                          │
-                          ▼
-               Data Normalisation Layer
-                          │
-                          ▼
-             Data Quality Validation Engine
-                          │
-                          ▼
-                SQLite Database (11 Tables)
-                          │
-                          ▼
-                Financial Ratio Engine
-                          │
-                          ▼
-         Screening • Ranking • APIs • Dashboard
-```
-
----
-
-# 📅 Project Roadmap
-
-| Sprint | Days | Module | Status |
-|---------|------|--------|--------|
-| Sprint 1 | Day 01 – Day 07 | Data Foundation & ETL | ✅ Completed |
-| Sprint 2 | Day 08 – Day 14 | Financial Ratio Engine | 🟡 In Progress |
-| Sprint 3 | Day 15 – Day 21 | Company Screener Engine | ⏳ Pending |
-| Sprint 4 | Day 22 – Day 28 | Scoring & Ranking Engine | ⏳ Pending |
-| Sprint 5 | Day 29 – Day 35 | REST API Development | ⏳ Pending |
-| Sprint 6 | Day 36 – Day 42 | Dashboard & Deployment | ⏳ Pending |
-
----
-
-# 📂 Current Project Structure
+The Financial Intelligence Platform follows a **modular, layered architecture**, where each component has a well-defined responsibility. The workflow begins with raw financial datasets, passes through ETL and validation, stores processed data in SQLite, and builds multiple analytical layers before exposing the results through reports, REST APIs, and an interactive dashboard.
 
 ```text
-financial_intelligence_platform/
+                              ┌─────────────────────────────┐
+                              │   Raw Financial Datasets    │
+                              │ (Excel Files - 12 Sources)  │
+                              └──────────────┬──────────────┘
+                                             │
+                                             ▼
+                             ┌────────────────────────────────┐
+                             │       ETL & Data Pipeline       │
+                             │--------------------------------│
+                             │ • Excel Loader                 │
+                             │ • Data Normalisation           │
+                             │ • Schema Validation            │
+                             │ • Data Quality Rules           │
+                             └──────────────┬─────────────────┘
+                                            │
+                                            ▼
+                              ┌──────────────────────────────┐
+                              │       SQLite Database         │
+                              │------------------------------│
+                              │ Companies                    │
+                              │ Profit & Loss                │
+                              │ Balance Sheet                │
+                              │ Cash Flow                    │
+                              │ Financial Ratios             │
+                              │ Peer Percentiles             │
+                              │ Capital Allocation           │
+                              └──────────────┬───────────────┘
+                                             │
+            ┌────────────────────────────────┼─────────────────────────────────┐
+            │                                │                                 │
+            ▼                                ▼                                 ▼
+ ┌──────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
+ │ Financial Analytics  │      │ Investment Analytics   │      │ NLP Intelligence       │
+ │----------------------│      │------------------------│      │------------------------│
+ │ Ratio Engine         │      │ Screener Engine        │      │ Analysis Parser        │
+ │ CAGR Engine          │      │ Composite Scoring      │      │ Pros & Cons Generator  │
+ │ Valuation Engine     │      │ Peer Analytics         │      │ Confidence Scoring     │
+ │ Cash Flow KPIs       │      │ Radar Charts           │      │                        │
+ │ Capital Allocation   │      │ Clustering             │      │                        │
+ └──────────┬───────────┘      └──────────┬─────────────┘      └──────────┬─────────────┘
+            │                              │                               │
+            └───────────────┬──────────────┴───────────────┬───────────────┘
+                            ▼                              ▼
+                 ┌──────────────────────┐       ┌──────────────────────┐
+                 │ Reporting Engine     │       │ REST API             │
+                 │----------------------│       │----------------------│
+                 │ Company Tearsheets   │       │ FastAPI              │
+                 │ Sector Reports       │       │ OpenAPI Docs         │
+                 │ Portfolio Summary    │       │ JSON Endpoints       │
+                 └──────────┬───────────┘       └──────────┬───────────┘
+                            │                              │
+                            └──────────────┬───────────────┘
+                                           ▼
+                              ┌────────────────────────────┐
+                              │ Streamlit Dashboard        │
+                              │----------------------------│
+                              │ Company Profile            │
+                              │ Screener                  │
+                              │ Peer Analysis             │
+                              │ Sector Dashboard          │
+                              │ Trends & KPIs             │
+                              │ Reports                  │
+                              └────────────────────────────┘
+```
+
+---
+
+# ⚙️ Project Workflow
+
+The Financial Intelligence Platform follows an end-to-end analytics workflow consisting of six major stages.
+
+### Stage 1 — Data Ingestion
+
+Financial statement data is collected from multiple Excel workbooks covering company fundamentals, balance sheets, profit and loss statements, cash flow statements, market capitalisation, sector mappings, peer groups, and supporting datasets.
+
+---
+
+### Stage 2 — ETL & Data Quality
+
+The ETL pipeline performs:
+
+- Excel loading
+- Data normalisation
+- Schema validation
+- Duplicate detection
+- Missing value checks
+- Data quality validation
+- SQLite loading
+
+Validated data is then stored in the central SQLite database.
+
+---
+
+### Stage 3 — Financial Analytics
+
+The analytics engine computes:
+
+- Profitability Ratios
+- Liquidity Ratios
+- Leverage Ratios
+- Growth Metrics
+- CAGR Calculations
+- Valuation Metrics
+- Cash Flow Intelligence
+- Capital Allocation Patterns
+
+These metrics form the analytical foundation used throughout the platform.
+
+---
+
+### Stage 4 — Investment Intelligence
+
+Using the computed financial metrics, the platform performs:
+
+- Investment Screening
+- Composite Quality Scoring
+- Peer Percentile Ranking
+- Radar Chart Comparison
+- Company Clustering
+- NLP-based Investment Insights
+
+This transforms raw financial data into actionable investment intelligence.
+
+---
+
+### Stage 5 — Reporting & APIs
+
+Analytical outputs are converted into multiple formats:
+
+- Company PDF Tearsheets
+- Sector Reports
+- Portfolio Summary Reports
+- Excel Reports
+- CSV Exports
+- FastAPI REST Endpoints
+
+---
+
+### Stage 6 — Interactive Visualisation
+
+The Streamlit dashboard provides an interactive interface for:
+
+- Exploring company financials
+- Running custom investment screeners
+- Comparing peer companies
+- Analysing financial trends
+- Viewing reports
+- Accessing generated insights
+
+This enables analysts to interact with the platform without directly querying the database.
+
+---
+
+# ✨ Core Features
+
+The Financial Intelligence Platform is organised into modular components, each responsible for a specific stage of the financial analysis workflow. This modular architecture improves maintainability, scalability, and code reusability while allowing independent development of analytical features.
+
+---
+
+## 📥 ETL & Data Processing
+
+The ETL (Extract, Transform, Load) pipeline forms the foundation of the platform by converting raw Excel datasets into a clean, validated SQLite database.
+
+### Key Capabilities
+
+- Import financial data from multiple Excel workbooks
+- Standardise company names and financial years
+- Validate schema consistency across datasets
+- Perform Data Quality (DQ) checks
+- Detect duplicate and missing records
+- Generate validation and load audit reports
+- Populate the central SQLite database
+
+**Modules**
+
+```
+src/etl/
+├── loader.py
+├── normaliser.py
+└── validator.py
+```
+
+---
+
+## 🗄️ SQLite Data Warehouse
+
+A central SQLite database stores validated financial data and analytical outputs, providing a single source of truth for all platform modules.
+
+### Database Contents
+
+- Company Information
+- Profit & Loss Statements
+- Balance Sheets
+- Cash Flow Statements
+- Financial Ratios
+- Peer Percentiles
+- Capital Allocation Data
+- Supporting Reference Data
+
+The database enables efficient querying by the analytics engine, dashboard, and REST API.
+
+---
+
+## 📈 Financial Analytics Engine
+
+The analytics engine transforms raw financial statements into meaningful investment metrics.
+
+### Features
+
+- Financial Ratio Computation
+- CAGR Calculations
+- Growth Analysis
+- Profitability Analysis
+- Liquidity Analysis
+- Leverage Analysis
+- Valuation Metrics
+- Financial Health Indicators
+
+### Analytical Modules
+
+```
+src/analytics/
+
+ratios.py
+cagr.py
+valuation.py
+scoring.py
+populate_financial_ratios.py
+```
+
+---
+
+## 💰 Cash Flow Intelligence
+
+One of the platform's key analytical capabilities is the Cash Flow Intelligence module, which evaluates cash generation quality beyond traditional financial ratios.
+
+### Generated Insights
+
+- CFO Quality Score
+- Free Cash Flow Analysis
+- CapEx Intensity
+- Free Cash Flow Conversion
+- Distress Signal Detection
+- Deleveraging Detection
+- Capital Allocation Classification
+
+### Outputs
+
+- Cash Flow Intelligence Report
+- Distress Alerts
+- Capital Allocation Summary
+- Pattern Change Report
+
+---
+
+## 🔍 Financial Screener
+
+The screener enables investors and analysts to identify companies matching predefined or custom investment criteria.
+
+### Features
+
+- Configurable threshold filtering
+- Six predefined investment strategies
+- Analyst-editable YAML configuration
+- Composite Quality Score
+- Sector-aware filtering
+- Custom screening support
+
+### Preset Screeners
+
+- Quality Compounder
+- Value Pick
+- Growth Accelerator
+- Dividend Champion
+- Debt-Free Blue Chip
+- Turnaround Watch
+
+---
+
+## 🤝 Peer Analytics Engine
+
+The peer engine benchmarks companies against industry peers using percentile-based ranking.
+
+### Capabilities
+
+- Peer Group Mapping
+- Percentile Rankings
+- Sector Benchmarking
+- Composite Ranking
+- Radar Chart Generation
+- Comparative Analysis
+
+The module supports multiple financial metrics, allowing analysts to compare company performance within the same industry.
+
+---
+
+## 🤖 Natural Language Processing (NLP)
+
+The NLP module converts structured financial metrics into readable investment insights.
+
+### Components
+
+- Analysis Text Parser
+- Automated Pros Generator
+- Automated Cons Generator
+- Confidence Scoring
+- Rule-Based Financial Commentary
+
+The generated insights provide explainable investment observations based on company financial performance.
+
+---
+
+## 📄 Automated Reporting Engine
+
+The reporting engine generates analyst-ready documents in PDF format.
+
+### Reports Generated
+
+- Company Tearsheets
+- Sector Reports
+- Portfolio Summary Report
+
+Each report combines financial metrics, visualisations, and NLP-generated commentary into a professional presentation.
+
+---
+
+## 📊 Interactive Dashboard
+
+The Streamlit dashboard provides a user-friendly interface for exploring financial data and analytical outputs.
+
+### Dashboard Pages
+
+- Home
+- Company Profile
+- Financial Screener
+- Peer Comparison
+- Financial Trends
+- Sector Analytics
+- Capital Allocation
+- Reports
+
+The dashboard enables users to explore insights without directly interacting with the database.
+
+---
+
+## 🌐 REST API
+
+The FastAPI backend exposes platform functionality through RESTful endpoints.
+
+### API Features
+
+- Company Information
+- Financial Statements
+- Ratio Data
+- Sector Analytics
+- Investment Screener
+- Peer Comparison
+- Health Check
+- Portfolio Statistics
+
+Interactive API documentation is automatically generated using the OpenAPI specification.
+
+---
+
+## 📊 Data Visualisation
+
+The platform includes multiple visualisation techniques for financial analysis.
+
+### Charts
+
+- Revenue Trends
+- Profit Trends
+- ROE vs ROCE
+- Radar Charts
+- Correlation Heatmaps
+- Elbow Curve
+- Portfolio Statistics
+- Balance Sheet Composition
+- Cash Flow Waterfall Charts
+
+Visualisations are used throughout reports and the Streamlit dashboard.
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+Testing was integrated throughout the development lifecycle to ensure correctness and reliability.
+
+### Test Coverage
+
+- ETL Validation
+- KPI Calculations
+- CAGR Engine
+- Cash Flow Analytics
+- REST API
+- Screener Engine
+- Performance Tests
+
+The project includes dedicated unit, integration, and performance testing modules to validate analytical correctness and system stability.
+
+---
+
+# 📦 Feature Summary
+
+| Module | Primary Function |
+|---------|------------------|
+| ETL Pipeline | Data ingestion, validation, and loading |
+| SQLite Database | Central financial data repository |
+| Analytics Engine | Financial ratio and KPI computation |
+| Screener | Investment filtering and ranking |
+| Peer Analytics | Industry benchmarking |
+| Cash Flow Intelligence | Cash flow quality and capital allocation analysis |
+| NLP Engine | Automated financial commentary |
+| Reporting Engine | PDF report generation |
+| Dashboard | Interactive visual analytics |
+| REST API | Programmatic data access |
+| Testing | Validation and quality assurance |
+
+---
+
+# 📁 Project Structure
+
+The project follows a modular architecture that separates data engineering, analytics, reporting, APIs, dashboard development, and testing into independent components. This organisation improves maintainability, scalability, and ease of future enhancements.
+
+```
+FINANCIAL_INTELLIGENCE_PLATFORM/
+│
+├── config/
+│   └── screener_config.yaml          # Configurable screener thresholds
 │
 ├── data/
-│   ├── raw/
-│   └── supporting/
+│   ├── raw/                          # Raw financial datasets
+│   ├── supporting/                   # Supporting reference datasets
+│   └── nifty100.db                   # SQLite database
 │
 ├── db/
-│   ├── schema.sql
-│   ├── loader.py
-│   └── nifty100.db
+│   ├── loader.py                     # Database loader
+│   └── schema.sql                    # Database schema
 │
-├── src/
-│   ├── etl/
-│   ├── analytics/
-│   ├── api/
-│   └── dashboard/
+├── docs/
+│   └── openapi.json                  # OpenAPI specification
 │
-├── tests/
-│   ├── etl/
-│   └── kpi/
+├── notebooks/
+│   └── exploratory_queries.sql       # SQL exploration queries
+│
+├── output/
+│   ├── reports/
+│   ├── portfolio/
+│   ├── sector/
+│   ├── tearsheets/
+│   ├── analysis_parsed.csv
+│   ├── cashflow_intelligence.xlsx
+│   ├── peer_comparison.xlsx
+│   ├── screener_output.xlsx
+│   ├── valuation_summary.xlsx
+│   └── ... additional generated outputs
 │
 ├── reports/
+│   ├── assets/
+│   ├── radar_charts/
 │   ├── sprint1/
 │   ├── sprint2/
 │   ├── sprint3/
 │   ├── sprint4/
 │   ├── sprint5/
 │   ├── sprint6/
-│   └── README.md
+│   ├── cluster_profile.csv
+│   ├── correlation_heatmap.png
+│   ├── elbow_plot.png
+│   └── pytest_report.html
 │
-├── output/
-├── notebooks/
+├── src/
+│   ├── analytics/
+│   ├── api/
+│   ├── dashboard/
+│   ├── db/
+│   ├── etl/
+│   ├── nlp/
+│   ├── reports/
+│   └── screener/
+│
+├── tests/
+│   ├── api/
+│   ├── etl/
+│   ├── kpi/
+│   └── performance/
+│
 ├── requirements.txt
-└── README.md
+├── Makefile
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-# 💻 Technology Stack
+# 📂 Directory Overview
 
-| Category | Technologies |
-|----------|--------------|
-| Programming Language | Python 3.11 |
-| Database | SQLite |
-| Data Processing | Pandas, NumPy |
-| Excel Processing | OpenPyXL |
-| Testing | PyTest |
-| Version Control | Git & GitHub |
-| Future Dashboard | Streamlit |
-| Future APIs | FastAPI |
-
----
-
-# 📈 Current Project Statistics
-
-| Metric | Value |
-|---------|------:|
-| Development Duration | 42 Days |
-| Sprints | 6 |
-| Sprints Completed | 1 |
-| Current Sprint | Sprint 2 |
-| Days Completed | 12 / 42 |
-| Companies Loaded | 92 |
-| Database Tables | 11 |
-| Financial Records | 5,000+ |
-| Financial KPIs Implemented | 20+ |
-| Data Quality Rules | 16 |
-| Unit Tests Passed | 48 |
-| Database | SQLite |
-| Status | 🟢 Active Development |
+| Directory | Purpose |
+|------------|---------|
+| **config/** | Configuration files including analyst-editable screener thresholds |
+| **data/** | Raw datasets, supporting datasets, and SQLite database |
+| **db/** | Database schema definition and loading utilities |
+| **docs/** | API documentation and project documentation |
+| **notebooks/** | SQL queries and exploratory analysis scripts |
+| **output/** | Generated CSV, Excel, and PDF outputs produced by the platform |
+| **reports/** | Sprint documentation, visualisations, and testing reports |
+| **src/** | Complete application source code |
+| **tests/** | Unit, API, integration, and performance tests |
 
 ---
 
-# 🚀 Sprint 1 — Data Foundation (Day 01 – Day 07)
+# 🏛 Source Code Organisation
 
-## Sprint Goal
+The application source code is organised into specialised modules.
 
-The objective of Sprint 1 was to establish a reliable data foundation for the Financial Intelligence Platform. This sprint focused on building the complete ETL pipeline, validating multiple financial datasets, designing the SQLite database schema, loading all datasets successfully, and ensuring the database was ready for analytics in subsequent sprints.
-
-By the end of Sprint 1, the platform successfully loaded financial data for **92 NIFTY 100 companies** into a normalized SQLite database while enforcing data quality and referential integrity.
-
----
-
-## Sprint Deliverables
-
-- Complete project structure
-- Python virtual environment
-- ETL Loader
-- Data Normalisation Engine
-- Data Quality Validator
-- SQLite Database Schema
-- SQLite Database Loader
-- Validation Reports
-- Load Audit Report
-- Manual Data Quality Review
-- Exploratory SQL Queries
-- Sprint Retrospective
+| Module | Responsibility |
+|---------|----------------|
+| **analytics/** | Financial ratios, CAGR, valuation, cash flow intelligence, clustering, peer analytics, radar charts |
+| **api/** | FastAPI application, routers, and service layer |
+| **dashboard/** | Streamlit application and dashboard pages |
+| **db/** | Database helper utilities |
+| **etl/** | Data extraction, validation, and normalisation |
+| **nlp/** | Financial text parsing and automated pros & cons generation |
+| **reports/** | PDF tearsheets, sector reports, portfolio reports |
+| **screener/** | Investment screening engine and preset filters |
 
 ---
 
-# 📅 Day 01 — Environment Setup
+# 📊 Generated Outputs
 
-## Objective
+The platform automatically generates a wide range of analytical outputs.
 
-Create the development environment and initialize the project repository following a modular and scalable directory structure.
+### Excel Reports
 
-### Work Completed
+- Financial Screener Results
+- Peer Comparison Report
+- Cash Flow Intelligence Report
+- Valuation Summary
 
-The project repository was initialized using Git and organized into dedicated folders for ETL, analytics, testing, database scripts, reports, notebooks, and output files. A Python virtual environment was created to isolate dependencies and ensure reproducibility across development environments.
+### CSV Reports
 
-Required libraries were installed and documented using `requirements.txt`. Environment configuration files and Git ignore rules were added to support future development.
-
-### Deliverables
-
-- Project directory structure
-- Virtual Environment
-- requirements.txt
-- .gitignore
-- Git Repository Initialization
-
-### Verification
-
-- Python virtual environment activated successfully
-- All dependencies installed without errors
-- Git repository initialized successfully
-
-**Status:** ✅ Completed
-
----
-
-# 📅 Day 02 — Excel Loader & Data Normalisation
-
-## Objective
-
-Develop reusable ETL utilities capable of loading Excel datasets while normalizing inconsistent financial data formats.
-
-### Work Completed
-
-Implemented an Excel loader supporting multiple worksheets and custom header positions. Developed normalization functions to standardize company tickers and financial year formats across all datasets.
-
-The implementation ensured that downstream database loading could rely on consistent primary keys and year representations.
-
-### Components Developed
-
-#### Excel Loader
-
-- Dynamic Excel loading
-- Support for `header=1`
-- Automatic dataframe generation
-- Error handling for missing files
-
-#### Data Normalisation
-
-Implemented reusable functions:
-
-- `normalize_year()`
-- `normalize_ticker()`
-
-These functions standardize year formats and company identifiers before validation and database loading.
-
-### Testing
-
-A comprehensive unit test suite was written to validate normalisation logic.
-
-**Results**
-
-- 40 Unit Tests Passed
-- No failures
-- Edge cases verified
-
-### Deliverables
-
-- `src/etl/loader.py`
-- `src/etl/normaliser.py`
-- `tests/etl/test_normaliser.py`
-
-**Status:** ✅ Completed
-
----
-
-# 📅 Day 03 — Data Quality Validation Framework
-
-## Objective
-
-Design and implement a validation engine capable of identifying inconsistencies before data enters the database.
-
-### Work Completed
-
-A modular validation framework was implemented consisting of sixteen Data Quality (DQ) rules. These rules verify uniqueness, foreign key integrity, financial consistency, missing values, duplicate reports, and URL validity.
-
-Validation results are automatically exported to a CSV report for manual review.
-
-### Data Quality Rules
-
-#### Critical Rules
-
-- DQ-01 — Primary Key Uniqueness
-- DQ-02 — Company-Year Uniqueness
-- DQ-03 — Foreign Key Integrity
-
-#### Financial Validation
-
-- DQ-04 — Balance Sheet Validation
-- DQ-05 — Operating Margin Cross Check
-- DQ-06 — Positive Sales Validation
-- DQ-07 — Net Cash Flow Validation
-
-#### Financial Health Rules
-
-- DQ-08 — Tax Percentage Validation
-- DQ-09 — Dividend Payout Validation
-- DQ-10 — EPS Consistency
-
-#### Dataset Integrity
-
-- DQ-11 — Documents Validation
-- DQ-12 — Analysis Validation
-- DQ-13 — Pros & Cons Validation
-- DQ-14 — URL Validation
-- DQ-15 — Duplicate Report Detection
-- DQ-16 — Missing Data Validation
-
-### Outputs Generated
-
-- `validation_failures.csv`
-- Validation summary report
-
-### Deliverables
-
-- `src/etl/validator.py`
-- `output/validation_failures.csv`
-
-**Status:** ✅ Completed
-
----
-
-# 📅 Day 04 — SQLite Database Design
-
-## Objective
-
-Design a normalized relational database capable of storing financial statements and supporting future analytical modules.
-
-### Work Completed
-
-A complete SQLite schema was designed using primary keys, foreign keys, and relational constraints. Referential integrity was enforced using SQLite foreign key support.
-
-The schema supports company financial statements, ratios, stock prices, sectors, and supporting metadata.
-
-### Database Features
-
-- Normalized relational schema
-- Primary Keys
-- Foreign Keys
-- Referential Integrity
-- PRAGMA foreign_keys = ON
-
-### Tables Created
-
-1. Companies
-2. Profit & Loss
-3. Balance Sheet
-4. Cash Flow
-5. Analysis
-6. Documents
-7. Pros & Cons
-8. Financial Ratios
-9. Stock Prices
-10. Sectors
-11. Peer Groups
-
-### Deliverables
-
-- `db/schema.sql`
-- `db/loader.py`
-- `nifty100.db`
-
-**Status:** ✅ Completed
-
----
-
-# 📅 Day 05 — Full Data Load & Audit
-
-## Objective
-
-Populate the SQLite database with all available financial datasets and verify successful loading.
-
-### Work Completed
-
-All core and supplementary datasets were successfully loaded into the SQLite database following dependency order to preserve referential integrity.
-
-An automated load audit report was generated to verify row counts across all database tables.
-
-### Datasets Loaded
-
-#### Core Files
-
-- Companies
-- Profit & Loss
-- Balance Sheet
-- Cash Flow
-- Analysis
-- Documents
+- Parsed Analysis Data
 - Pros & Cons
+- Distress Alerts
+- Portfolio Statistics
+- Capital Allocation
+- Cluster Labels
+- Pattern Changes
+- Validation Reports
+- Load Audit
+- Outlier Detection
 
-#### Supporting Files
+### PDF Reports
+
+- Company Tearsheets
+- Sector Reports
+- Portfolio Summary
+
+### Visualisations
+
+- Radar Charts
+- Correlation Heatmap
+- Elbow Plot
+- Dashboard Charts
+
+---
+
+# 🧪 Testing Structure
+
+Testing is organised by functional area to ensure modular validation and maintainability.
+
+```
+tests/
+
+├── api/
+│   ├── test_companies.py
+│   ├── test_health.py
+│   ├── test_screener.py
+│   └── test_sectors.py
+│
+├── etl/
+│   └── test_normaliser.py
+│
+├── kpi/
+│   ├── test_cagr.py
+│   ├── test_cashflow.py
+│   ├── test_leverage.py
+│   └── test_ratios.py
+│
+└── performance/
+    ├── test_load.py
+    └── test_profile_speed.py
+```
+
+The testing framework validates data quality, financial calculations, API endpoints, KPI accuracy, and system performance throughout the platform.
+
+---
+
+# 🗄️ Database Design & Data Model
+
+The Financial Intelligence Platform uses **SQLite** as its central analytical data warehouse. After passing through the ETL pipeline, validated financial data is stored in a structured relational database that serves as the single source of truth for all analytics, reporting, APIs, and dashboard components.
+
+The database has been designed to minimise redundancy while maintaining efficient querying for financial analysis.
+
+---
+
+# 🏛 Database Architecture
+
+```
+                    +-------------------+
+                    |    companies      |
+                    +---------+---------+
+                              |
+          +-------------------+-------------------+
+          |                   |                   |
+          ▼                   ▼                   ▼
++----------------+   +----------------+   +----------------+
+| profit_loss    |   | balance_sheet  |   |  cash_flow     |
++--------+-------+   +--------+-------+   +--------+-------+
+         |                    |                    |
+         +--------------------+--------------------+
+                              |
+                              ▼
+                 +---------------------------+
+                 |  financial_ratios         |
+                 +------------+--------------+
+                              |
+         +--------------------+--------------------+
+         |                    |                    |
+         ▼                    ▼                    ▼
++----------------+   +----------------+   +----------------+
+| peer_percentiles|  | capital_alloc. |  | valuation_data  |
++----------------+   +----------------+   +----------------+
+         |                    |                    |
+         +--------------------+--------------------+
+                              |
+                              ▼
+                 Reports • APIs • Dashboard
+```
+
+---
+
+# 📋 Core Database Tables
+
+The following tables form the analytical backbone of the platform.
+
+| Table | Description |
+|--------|-------------|
+| **companies** | Master company information including ticker, sector and identifiers |
+| **profit_loss** | Historical income statement data |
+| **balance_sheet** | Historical balance sheet information |
+| **cash_flow** | Historical cash flow statements |
+| **financial_ratios** | Computed profitability, growth, liquidity and leverage metrics |
+| **peer_percentiles** | Industry percentile rankings across financial metrics |
+| **capital_allocation** | Capital allocation classifications and historical patterns |
+| **documents** | Supporting company documentation and metadata |
+| **pros_cons** | NLP-generated investment insights |
+
+---
+
+# 🔄 Data Flow
+
+The database is populated through a structured ETL process.
+
+### Step 1 – Data Extraction
+
+Financial data is collected from multiple Excel workbooks, including:
+
+- Company Information
+- Profit & Loss Statements
+- Balance Sheets
+- Cash Flow Statements
+- Analysis Data
+- Supporting Reference Files
+
+---
+
+### Step 2 – Validation
+
+Before loading into SQLite, the ETL pipeline performs:
+
+- Schema validation
+- Missing value detection
+- Duplicate record checks
+- Foreign key validation
+- Financial year normalisation
+- Company identifier standardisation
+
+Only validated data proceeds to the database.
+
+---
+
+### Step 3 – Analytics
+
+Once stored in SQLite, multiple analytical engines enrich the raw data.
+
+Generated datasets include:
 
 - Financial Ratios
-- Stock Prices
-- Sectors
-- Peer Groups
-- Market Capitalization
+- CAGR Metrics
+- Valuation Metrics
+- Cash Flow Intelligence
+- Peer Rankings
+- Composite Scores
+- Cluster Labels
+- Capital Allocation Patterns
 
-### Database Summary
-
-| Table | Records |
-|--------|--------:|
-| Companies | 92 |
-| Profit & Loss | 1177 |
-| Balance Sheet | 1227 |
-| Cash Flow | 1091 |
-| Financial Ratios | 1160 |
-| Stock Prices | 5520 |
-| Peer Groups | 56 |
-
-### Outputs Generated
-
-- `nifty100.db`
-- `output/load_audit.csv`
-
-### Verification
-
-- Database created successfully
-- Foreign keys validated
-- Row counts verified
-- Load audit generated
-
-**Status:** ✅ Completed
+These derived datasets are stored alongside the raw financial data, enabling fast querying and report generation.
 
 ---
 
-# 📅 Day 06 — Manual Data Quality Review
+# 📈 Analytical Data Model
 
-## Objective
+The platform separates **raw financial data** from **derived analytical data**.
 
-Perform manual verification of randomly selected companies to ensure correctness of loaded financial data.
+### Raw Data Layer
 
-### Companies Reviewed
+Contains original financial statements imported from Excel.
 
-- ABB
-- TCS
-- RELIANCE
-- HDFCBANK
-- TATAPOWER
+Examples:
 
-### Validation Performed
-
-The following checks were completed:
-
-- Historical year coverage
-- Profit & Loss records
-- Balance Sheet records
-- Cash Flow records
-- Financial Ratio availability
-- Stock Price availability
-- Foreign key consistency
-
-### Findings
-
-The review confirmed that data had been loaded consistently across related tables. Historical coverage was appropriate for the selected companies, and no ETL defects or referential integrity issues were identified.
-
-Companies with shorter financial histories were reviewed separately and determined to reflect genuine business history rather than data loading problems.
-
-### Result
-
-Database quality was considered suitable for analytical processing in subsequent sprints.
-
-**Status:** ✅ Completed
+- Revenue
+- Expenses
+- Assets
+- Liabilities
+- Operating Cash Flow
+- Investing Cash Flow
+- Financing Cash Flow
 
 ---
 
-# 📅 Day 07 — Sprint Wrap-Up & Review
+### Derived Data Layer
 
-## Objective
+Generated automatically by analytical modules.
 
-Complete Sprint 1 by validating the database, writing exploratory SQL queries, reviewing deliverables, and documenting sprint outcomes.
+Examples:
 
-### Work Completed
+- ROE
+- ROCE
+- ROA
+- Debt-to-Equity Ratio
+- Revenue CAGR
+- PAT CAGR
+- Free Cash Flow CAGR
+- Composite Quality Score
+- CFO Quality
+- CapEx Intensity
+- Peer Percentiles
 
-- Created exploratory SQL queries
-- Verified database row counts
-- Confirmed foreign key integrity
-- Executed ETL unit tests
-- Reviewed Sprint 1 deliverables
-- Documented sprint retrospective
-
-### Validation Summary
-
-- Companies Loaded: **92**
-- SQLite Database: **Created Successfully**
-- ETL Unit Tests: **40 Passed**
-- Foreign Key Check: **Passed**
-- Data Quality Framework: **16 Rules Implemented**
-
-### Deliverables
-
-- `notebooks/exploratory_queries.sql`
-- Sprint 1 Retrospective
-- Updated Project Documentation
-
-**Status:** ✅ Completed
+This layered approach ensures that raw financial information remains unchanged while analytical metrics can be regenerated whenever required.
 
 ---
 
-# ✅ Sprint 1 Summary
+# 🔍 Query Optimisation
 
-Sprint 1 established the complete data engineering foundation of the Financial Intelligence Platform. By the end of the sprint, all datasets had been successfully validated, transformed, and loaded into SQLite. A comprehensive validation framework, automated ETL pipeline, relational database schema, audit reporting mechanism, and unit testing suite were completed successfully.
+The database design supports efficient analytical queries for:
 
-This sprint provides the stable foundation required for the Financial Ratio Engine and subsequent analytical modules implemented in later sprints.
+- Company-level financial analysis
+- Sector comparisons
+- Investment screening
+- Peer benchmarking
+- Portfolio analytics
+- REST API responses
+- Dashboard visualisations
 
-# 🚀 Sprint 2 — Financial Ratio Engine (Day 08 – Day 14)
-
-## Sprint Goal
-
-The objective of Sprint 2 is to build a comprehensive Financial Ratio Engine capable of computing more than **50 financial Key Performance Indicators (KPIs)** for every company across all available financial years.
-
-The sprint extends the ETL pipeline developed in Sprint 1 by transforming raw financial statement data into meaningful analytical metrics. These KPIs serve as the foundation for company screening, scoring, ranking, investment analysis, and dashboard visualizations in later sprints.
-
-The implementation focuses on profitability analysis, leverage measurement, efficiency metrics, growth calculations using CAGR, cash flow analytics, and automated ratio population into the SQLite database.
+By centralising all processed data within SQLite, the platform avoids repeated computation and improves overall performance.
 
 ---
 
-## Sprint Deliverables
+# 📊 Database Usage Across Modules
 
-- Profitability Ratio Engine
-- Leverage & Efficiency Ratio Engine
-- CAGR Engine
-- Cash Flow KPI Engine
-- Capital Allocation Classification
-- Financial Ratio Population Engine
-- SQLite Ratio Table
-- KPI Unit Tests
-- Manual Validation Reports
-- Ratio Edge Case Logging (Upcoming)
-
----
-
-# 📅 Day 08 — Profitability Ratio Engine
-
-## Objective
-
-Develop reusable analytical functions capable of calculating profitability ratios for every company-year combination while handling financial edge cases such as zero sales and negative equity.
+| Module | Database Usage |
+|---------|----------------|
+| **ETL** | Inserts validated financial data |
+| **Analytics** | Reads statements and writes computed KPIs |
+| **Screener** | Queries financial ratios and composite scores |
+| **Peer Engine** | Stores and retrieves percentile rankings |
+| **Cash Flow Intelligence** | Generates cash flow analytics |
+| **NLP** | Generates structured investment insights |
+| **Reporting** | Retrieves data for PDF generation |
+| **FastAPI** | Serves analytical data through REST endpoints |
+| **Dashboard** | Displays financial information interactively |
 
 ---
 
-### Work Completed
+# ✅ Database Design Highlights
 
-A dedicated analytics module (`ratios.py`) was developed containing reusable financial ratio functions. These functions are independent of the ETL process and can be reused by APIs, dashboards, screeners, and reporting modules.
-
-Special attention was given to handling missing values and division-by-zero scenarios to ensure that invalid calculations do not interrupt execution.
-
----
-
-### Financial Ratios Implemented
-
-#### Net Profit Margin (NPM)
-
-Measures the percentage of profit generated from revenue.
-
-Formula:
-
-```
-Net Profit / Sales × 100
-```
-
-Edge Cases
-
-- Sales = 0 → Returns None
+- Centralised SQLite analytical warehouse
+- Separation of raw and derived data
+- Relational structure with reusable company identifiers
+- Optimised for analytical workloads
+- Supports reporting, APIs, dashboard, and machine learning modules
+- Extensible architecture for future database migration (PostgreSQL/MySQL)
 
 ---
 
-#### Operating Profit Margin (OPM)
+# ⚙️ ETL & Data Processing Pipeline
 
-Measures operating profitability before taxes and financing costs.
+The Extract, Transform and Load (ETL) pipeline is the foundation of the Financial Intelligence Platform. It is responsible for ingesting raw financial datasets, validating data quality, normalising records, and loading clean data into the SQLite warehouse.
 
-Formula
-
-```
-Operating Profit / Sales × 100
-```
-
-Additional Validation
-
-Computed OPM is cross-checked against the source dataset. Differences greater than 1% are treated as validation mismatches.
+The ETL pipeline was designed with a strong emphasis on **data integrity**, **reproducibility**, and **automation**, ensuring that every analytical module operates on consistent and validated financial data.
 
 ---
 
-#### Return on Equity (ROE)
+# 📥 Data Sources
 
-Measures profitability generated using shareholders' equity.
+The platform processes multiple Excel datasets containing financial statements, company metadata, and supporting reference information.
 
-Formula
+### Core Datasets
 
-```
-Net Profit / (Equity Capital + Reserves) × 100
-```
+| Dataset | Description |
+|----------|-------------|
+| `companies.xlsx` | Company master information |
+| `profitandloss.xlsx` | Historical income statements |
+| `balancesheet.xlsx` | Historical balance sheet data |
+| `cashflow.xlsx` | Historical cash flow statements |
+| `analysis.xlsx` | Growth and performance metrics |
+| `documents.xlsx` | Company documentation metadata |
+| `prosandcons.xlsx` | Reference pros and cons dataset |
 
-Edge Cases
+### Supporting Datasets
 
-- Negative Equity
-- Zero Equity
+The ETL pipeline also imports supplementary datasets required for advanced analytics, including:
 
-Returns None whenever denominator is invalid.
-
----
-
-#### Return on Capital Employed (ROCE)
-
-Formula
-
-```
-EBIT / Capital Employed × 100
-```
-
-where
-
-```
-Capital Employed =
-Equity + Reserves + Borrowings
-```
-
-The implementation also prepares the platform for Financial Sector specific benchmarks which will be expanded during Day 13.
+- Sector mappings
+- Peer group definitions
+- Market capitalisation
+- Shareholding patterns
+- Historical price information
+- Reference lookup tables
 
 ---
 
-#### Return on Assets (ROA)
+# 🔄 ETL Workflow
 
-Formula
+The platform follows a structured multi-stage ETL workflow.
 
 ```
-Net Profit / Total Assets × 100
+Raw Excel Files
+        │
+        ▼
+Data Extraction
+        │
+        ▼
+Data Normalisation
+        │
+        ▼
+Schema Validation
+        │
+        ▼
+Data Quality Validation
+        │
+        ▼
+SQLite Loading
+        │
+        ▼
+Analytics Pipeline
 ```
 
-Edge Cases
-
-- Total Assets = 0
-
-Returns None.
+Each stage performs a specific responsibility before passing validated data to the next stage.
 
 ---
 
-### Unit Testing
+# 🧹 Data Normalisation
 
-Comprehensive test cases were written covering
+Before loading the datasets into SQLite, the ETL pipeline standardises the data to ensure consistency across all modules.
 
-- Standard calculations
-- Zero denominator
-- Negative equity
-- Missing values
-- OPM cross validation
+### Normalisation Tasks
 
-All implemented ratio functions behaved as expected.
+- Standardise company identifiers
+- Clean company names
+- Normalise financial years
+- Handle missing values
+- Standardise numeric formats
+- Remove duplicate records
+- Validate data types
 
----
-
-### Deliverables
-
-```
-src/analytics/ratios.py
-tests/kpi/test_ratios.py
-```
-
-**Status:** ✅ Completed
+This preprocessing ensures that all downstream analytical computations operate on consistent data.
 
 ---
 
-# 📅 Day 09 — Leverage & Efficiency Ratio Engine
+# ✅ Data Quality Validation
 
-## Objective
+To maintain high data reliability, the platform performs automated validation checks during the ETL process.
 
-Implement leverage and operational efficiency metrics to evaluate company solvency and capital utilization.
+### Validation Categories
+
+- Schema Validation
+- Required Column Checks
+- Duplicate Detection
+- Missing Value Detection
+- Foreign Key Validation
+- Company Identifier Validation
+- Financial Year Validation
+- Numeric Data Validation
+
+Validation failures are logged for manual review without interrupting the overall pipeline.
+
+Generated outputs include:
+
+```
+validation_failures.csv
+load_audit.csv
+```
 
 ---
 
-### Work Completed
+# 🗃 Database Loading
 
-Additional reusable functions were integrated into the Ratio Engine for debt analysis and operational efficiency measurement.
+Once validation is complete, the cleaned datasets are loaded into the SQLite database.
 
-These functions also include business-specific logic for Financial Sector companies where leverage behaves differently compared to manufacturing and service industries.
+The loading process ensures:
 
----
+- Consistent primary keys
+- Referential integrity
+- Correct table relationships
+- Efficient bulk insertion
+- Repeatable execution
 
-### Financial Ratios Implemented
-
-#### Debt-to-Equity Ratio
-
-Formula
-
-```
-Borrowings /
-(Equity Capital + Reserves)
-```
-
-Special Handling
-
-- Borrowings = 0
-
-Returns
-
-```
-0
-```
-
-instead of None.
+The resulting database serves as the central data repository for all analytical modules.
 
 ---
 
-#### High Leverage Flag
+# 📊 ETL Outputs
 
-Companies with
+Successful execution of the ETL pipeline produces:
 
-```
-Debt-to-Equity > 5
-```
+### Database
 
-are automatically flagged.
+- SQLite analytical database
 
-Financial Sector companies are excluded from this warning because higher leverage is structurally normal.
+### Validation Reports
 
----
+- Validation failures
+- Load audit report
 
-#### Interest Coverage Ratio (ICR)
+### Clean Data
 
-Formula
+- Standardised company records
+- Normalised financial statements
+- Validated supporting datasets
 
-```
-(Operating Profit + Other Income)
-/ Interest
-```
-
-Edge Cases
-
-Interest = 0
-
-Returns
-
-```
-None
-```
-
-and assigns
-
-```
-Debt Free
-```
-
-as the display label.
+These outputs become the foundation for ratio computation, screening, peer analytics, reporting, and dashboard visualisation.
 
 ---
 
-#### Net Debt
+# 🔗 Integration with Analytics
 
-Formula
+The ETL pipeline directly feeds multiple analytical modules.
 
-```
-Borrowings − Investments
-```
+| ETL Output | Consumed By |
+|------------|-------------|
+| Company Data | Dashboard, API, Reporting |
+| Profit & Loss | Ratio Engine |
+| Balance Sheet | Valuation & Leverage Analysis |
+| Cash Flow | Cash Flow Intelligence |
+| Analysis Data | NLP Parser |
+| Supporting Data | Screener, Peer Engine |
 
-Investments are treated as liquid assets.
-
----
-
-#### Asset Turnover Ratio
-
-Formula
-
-```
-Sales / Total Assets
-```
-
-Edge Cases
-
-- Total Assets = 0
-
-Returns None.
+This layered architecture eliminates duplicate processing and ensures that every analytical module operates on the same validated dataset.
 
 ---
 
-### Unit Testing
+# 🚀 ETL Design Highlights
 
-Validation included
-
-- Debt-free companies
-- High leverage scenarios
-- Zero interest
-- Asset turnover calculations
-
----
-
-### Deliverables
-
-```
-src/analytics/ratios.py
-tests/kpi/test_leverage.py
-```
-
-**Status:** ✅ Completed
+- Automated ingestion of multiple Excel datasets
+- Repeatable and modular ETL workflow
+- Comprehensive data validation
+- Centralised SQLite data warehouse
+- Scalable architecture for future data sources
+- Clean separation between raw data and analytical processing
 
 ---
 
-# 📅 Day 10 — CAGR Growth Engine
+# 📈 Financial Analytics Engine
 
-## Objective
+The Financial Analytics Engine is the core computational component of the Financial Intelligence Platform. It transforms validated financial statements into meaningful business intelligence by calculating profitability, growth, liquidity, leverage, valuation, cash flow, and peer comparison metrics.
 
-Develop a reusable Compound Annual Growth Rate (CAGR) engine capable of calculating long-term financial growth while handling multiple financial edge cases.
+Rather than simply displaying financial statements, the engine derives actionable insights that support investment analysis, company benchmarking, portfolio screening, and automated reporting.
+
+The analytics pipeline operates on the central SQLite database, ensuring that all calculations are performed on validated and standardised financial data.
 
 ---
 
-### Work Completed
+# 🧮 Financial Ratio Engine
 
-A dedicated CAGR engine (`cagr.py`) was implemented to calculate Revenue, PAT, and EPS growth over multiple historical periods.
+The ratio engine computes a comprehensive set of financial ratios covering profitability, growth, leverage, liquidity, efficiency, and valuation.
 
-Unlike simple percentage growth, CAGR provides a normalized annualized growth rate that is more meaningful for long-term financial analysis.
+### Profitability Metrics
+
+- Return on Equity (ROE)
+- Return on Capital Employed (ROCE)
+- Return on Assets (ROA)
+- Operating Profit Margin (OPM)
+- Net Profit Margin (NPM)
+
+These metrics evaluate how efficiently a company generates profits from its capital and operations.
 
 ---
 
 ### Growth Metrics
 
-Implemented for
+Historical growth is measured using Compound Annual Growth Rate (CAGR) calculations.
 
-- Revenue
-- Net Profit (PAT)
-- Earnings Per Share (EPS)
+Computed growth metrics include:
 
-Supported Windows
+- Revenue CAGR
+- PAT CAGR
+- EPS CAGR
+- Free Cash Flow CAGR
 
-- 3 Year
-- 5 Year
-- 10 Year
-
----
-
-### CAGR Formula
-
-```
-((Ending Value / Starting Value)
-^(1 / Years) − 1)
-× 100
-```
+Both historical trends and long-term growth consistency are analysed.
 
 ---
 
-### Edge Cases Handled
+### Leverage Metrics
 
-- Positive → Positive
-- Positive → Negative
-- Negative → Positive
-- Negative → Negative
-- Zero Base
-- Insufficient Historical Data
+The platform evaluates financial leverage using several indicators.
 
-Each edge case generates an associated flag to support downstream analytics.
+Computed metrics include:
 
----
+- Debt-to-Equity Ratio
+- Net Debt
+- Interest Coverage Ratio
+- Debt Trend Analysis
 
-### Deliverables
-
-```
-src/analytics/cagr.py
-tests/kpi/test_cagr.py
-```
-
-
-# 📅 Day 11 — Cash Flow KPIs & Capital Allocation
-
-## Objective
-
-Develop advanced cash flow analytics capable of evaluating the quality of business operations, capital expenditure behaviour, free cash flow generation, and overall capital allocation strategy.
-
-Unlike profitability ratios, cash flow metrics provide insight into how effectively a company generates and utilizes cash. These indicators are essential for identifying financially strong businesses that consistently convert accounting profits into actual cash flows.
+Special handling is implemented for debt-free companies to ensure meaningful analytical comparisons.
 
 ---
 
-### Work Completed
+### Liquidity & Cash Flow Metrics
 
-A dedicated analytics module (`cashflow_kpis.py`) was developed containing reusable functions for calculating operational cash flow metrics and identifying capital allocation patterns.
+The ratio engine also evaluates cash generation capability.
 
-The implementation includes financial classifications that simplify interpretation of complex cash flow statements and prepares the platform for future screening and ranking modules.
+Metrics include:
 
----
+- Operating Cash Flow
+- Free Cash Flow
+- Free Cash Flow Conversion
+- Cash Flow Margin
 
-### KPIs Implemented
-
-#### Free Cash Flow (FCF)
-
-Free Cash Flow represents the cash generated after accounting for investments made in business assets.
-
-Formula
-
-```
-Free Cash Flow = Operating Cash Flow + Investing Cash Flow
-```
-
-Negative Free Cash Flow is considered a valid outcome because expanding businesses often invest heavily in long-term assets.
+These indicators complement traditional accounting-based profitability measures.
 
 ---
 
-#### CFO Quality Score
+# 💹 Valuation Engine
 
-Measures the quality of reported earnings by comparing cash generated from operations with accounting profit.
+The valuation module computes market-based valuation indicators that assist in comparing companies across sectors.
 
-Formula
+Supported valuation metrics include:
 
-```
-Operating Cash Flow
--------------------
-Net Profit (PAT)
-```
+- Price-to-Earnings (P/E)
+- Price-to-Book (P/B)
+- Enterprise Value
+- EV/EBITDA
+- Market Capitalisation
+- Dividend Yield
 
-Classification
-
-| Ratio | Classification |
-|--------|----------------|
-| > 1.0 | High Quality |
-| 0.5 – 1.0 | Moderate |
-| < 0.5 | Accrual Risk |
-
-Companies with higher ratios generally demonstrate stronger earnings quality.
+These metrics provide insight into whether a company's market valuation is reasonable relative to its financial performance.
 
 ---
 
-#### CapEx Intensity
+# 📊 Investment Scoring
 
-Measures how aggressively a company invests in long-term assets relative to its sales.
+To simplify financial analysis, the platform combines multiple KPIs into a Composite Quality Score.
 
-Formula
+The score ranges from **0 to 100** and evaluates companies across four dimensions.
 
-```
-|Investing Cash Flow|
-----------------------
-Sales
-× 100
-```
+| Category | Weight |
+|----------|--------|
+| Profitability | 35% |
+| Cash Flow Quality | 30% |
+| Growth | 20% |
+| Financial Strength | 15% |
 
-Classification
+The scoring process includes:
 
-| CapEx % | Category |
-|----------|----------|
-| <3% | Asset Light |
-| 3–8% | Moderate |
-| >8% | Capital Intensive |
+- Winsorisation of extreme values
+- Sector-relative normalisation
+- Weighted aggregation
+- Final ranking
 
----
-
-#### Free Cash Flow Conversion
-
-Evaluates the proportion of operating profit converted into free cash flow.
-
-Formula
-
-```
-Free Cash Flow
-------------------
-Operating Profit
-×100
-```
-
-Edge Case
-
-Operating Profit = 0
-
-Returns None.
+This score serves as the primary ranking metric used throughout the Screener module.
 
 ---
 
-### Capital Allocation Engine
+# 🔍 Financial Screener
 
-An automated classification engine was developed to categorize companies based on the signs of their operating, investing, and financing cash flows.
+The Screener enables analysts to identify companies matching predefined investment criteria or custom financial thresholds.
 
-The implemented classifications include:
+### Supported Screening Metrics
 
-| Cash Flow Pattern | Classification |
-|-------------------|----------------|
-| (+,-,-) | Reinvestor |
-| (+,-,-) + High CFO/PAT | Shareholder Returns |
-| (+,+,-) | Liquidating Assets |
-| (-,+,+) | Distress Signal |
-| (-,-,+) | Growth Funded by Debt |
-| (+,+,+) | Cash Accumulator |
-| (-,-,-) | Pre-Revenue |
-| (+,-,+) | Mixed |
-| Other | Other |
-
----
-
-### Outputs Generated
-
-The engine automatically generates
-
-```
-output/capital_allocation.csv
-```
-
-containing
-
-- Company ID
-- Financial Year
-- CFO Sign
-- CFI Sign
-- CFF Sign
-- Pattern Classification
-
-A total of **1103 company-year records** were successfully classified.
-
----
-
-### Deliverables
-
-```
-src/analytics/cashflow_kpis.py
-src/analytics/generate_capital_allocation.py
-output/capital_allocation.csv
-```
-
-**Status:** ✅ Completed
-
----
-
-# 📅 Day 12 — Financial Ratio Population Engine
-
-## Objective
-
-Integrate all analytical modules developed during Sprint 2 into a unified Financial Ratio Engine capable of computing KPIs for every available company-year record and storing the results in SQLite.
-
-This marks the transition from individual analytical functions to a complete financial analytics pipeline.
-
----
-
-### Work Completed
-
-A comprehensive ratio population engine (`populate_financial_ratios.py`) was developed to combine data from multiple financial statement tables and compute analytical metrics automatically.
-
-The pipeline performs the following operations:
-
-1. Connects to SQLite database.
-2. Loads all required financial tables.
-3. Removes duplicate company-year records.
-4. Merges Profit & Loss, Balance Sheet, Cash Flow, Company, and Sector data.
-5. Computes all implemented KPIs.
-6. Calculates five-year CAGR metrics.
-7. Generates a Composite Quality Score.
-8. Stores computed results back into SQLite.
-
----
-
-### KPIs Generated
-
-The Financial Ratio Engine currently computes:
-
-#### Profitability
-
-- Net Profit Margin
-- Operating Profit Margin
 - Return on Equity
 - Return on Capital Employed
-- Return on Assets
-
-#### Leverage
-
-- Debt to Equity
+- Debt-to-Equity Ratio
+- Revenue CAGR
+- PAT CAGR
+- EPS CAGR
+- Free Cash Flow
+- Operating Profit Margin
+- Dividend Yield
 - Interest Coverage Ratio
-- Net Debt
-- High Leverage Flag
+- Market Capitalisation
+- Asset Turnover
+- Sales
+- Net Profit
+- Price Ratios
 
-#### Efficiency
+The screening engine supports both preset investment strategies and fully configurable analyst-defined filters.
 
+---
+
+### Built-in Investment Presets
+
+Six predefined investment strategies are included.
+
+| Preset | Objective |
+|---------|-----------|
+| Quality Compounder | Identify fundamentally strong companies |
+| Value Pick | Discover undervalued businesses |
+| Growth Accelerator | Focus on rapidly expanding companies |
+| Dividend Champion | Identify consistent dividend payers |
+| Debt-Free Blue Chip | Find financially strong large-cap companies |
+| Turnaround Watch | Detect improving businesses |
+
+Results are ranked using the Composite Quality Score.
+
+---
+
+# 🤝 Peer Analytics Engine
+
+The Peer Analytics Engine benchmarks companies against industry competitors.
+
+Each company is compared only with businesses operating in the same peer group.
+
+The engine computes percentile rankings across multiple financial metrics, including:
+
+- ROE
+- ROCE
+- Net Profit Margin
+- Debt-to-Equity Ratio
+- Free Cash Flow
+- Revenue CAGR
+- PAT CAGR
+- EPS CAGR
+- Interest Coverage Ratio
 - Asset Turnover
 
-#### Cash Flow
+Peer rankings provide analysts with industry-relative performance instead of absolute comparisons.
 
-- Free Cash Flow
-- CFO Quality Score
-- CapEx Intensity
-- Free Cash Flow Conversion
+---
 
-#### Growth
+# 📊 Radar Chart Analytics
 
-- Revenue CAGR (5-Year)
-- PAT CAGR (5-Year)
-- EPS CAGR (5-Year)
+Radar charts visually compare company performance against peer group averages.
 
-#### Quality
+Each radar chart displays multiple dimensions simultaneously, allowing analysts to quickly identify strengths and weaknesses.
 
+Analysed dimensions include:
+
+- Profitability
+- Growth
+- Leverage
+- Cash Flow
+- Operational Efficiency
 - Composite Quality Score
 
----
-
-### Database Processing Summary
-
-During execution the engine successfully
-
-- Loaded all financial tables
-- Removed duplicate records
-- Merged financial datasets
-- Computed analytical KPIs
-- Generated quality scores
-- Populated SQLite output table
+These charts are incorporated into generated reports and visual analysis outputs.
 
 ---
 
-### Execution Results
+# 💰 Cash Flow Intelligence
 
-| Metric | Value |
-|---------|------:|
-| Companies | 92 |
-| Profit & Loss Records | 1177 |
-| Balance Sheet Records | 1227 |
-| Cash Flow Records | 1091 |
-| Computed Ratio Records | **1177** |
-| SQLite Population | Successful |
+Sprint 5 introduced a dedicated Cash Flow Intelligence Engine that analyses how companies generate, invest, and allocate cash.
 
----
+The module computes several advanced indicators beyond traditional accounting ratios.
 
-### Sample Output
+### CFO Quality
 
-Example computed metrics include
+Companies are classified based on the relationship between Cash Flow from Operations (CFO) and Profit After Tax (PAT).
 
-| Company | ROE | Debt/Equity | Revenue CAGR | Composite Score |
-|---------|----:|------------:|-------------:|----------------:|
-| ABB | 22.41 | 0.00 | 14.81% | 100 |
-| ABB | 23.69 | 0.00 | 14.81% | 80 |
-| ABB | 28.33 | 0.05 | 11.10% | 100 |
+Categories include:
+
+- High Quality
+- Moderate
+- Accrual Risk
 
 ---
 
-### Verification
+### CapEx Intensity
 
-The Financial Ratio Engine successfully produced
+Capital expenditure is evaluated relative to revenue to classify businesses as:
 
-- **1177 computed company-year records**
-- SQLite population completed successfully
-- Revenue CAGR calculations verified
-- Composite scores generated
-- Manual spot checks completed for sample companies
-
-The implementation satisfies the Sprint 2 requirement of generating more than **1100 analytical records**.
+- Asset Light
+- Moderate
+- Capital Intensive
 
 ---
 
-### Deliverables
+### Distress Detection
+
+The platform automatically flags companies exhibiting potential financial stress.
+
+Indicators include:
+
+- Negative operating cash flow
+- Positive financing cash flow
+- Weak cash generation
+- External funding dependence
+
+---
+
+### Deleveraging Detection
+
+The engine identifies companies actively reducing debt through internally generated cash flows.
+
+---
+
+# 🏛 Capital Allocation Analysis
+
+Capital allocation patterns are derived from historical cash flow behaviour.
+
+Companies are classified into predefined behavioural categories representing different capital allocation strategies.
+
+Examples include:
+
+- Reinvestor
+- Shareholder Return
+- Cash Accumulator
+- Growth Funded by Debt
+- Distress Signal
+
+Historical transitions are tracked to identify changes in financial strategy over time.
+
+---
+
+# 🤖 NLP-Based Investment Insights
+
+The Natural Language Processing module converts financial metrics into analyst-friendly commentary.
+
+### Components
+
+- Financial Analysis Parser
+- Automated Pros Generation
+- Automated Cons Generation
+- Confidence Scoring
+
+Each generated insight is linked to a rule-based financial signal, improving transparency and explainability.
+
+---
+
+# 📈 Machine Learning & Clustering
+
+To support exploratory analysis, the platform groups companies using unsupervised learning techniques.
+
+The clustering workflow includes:
+
+- Missing value imputation
+- Feature scaling
+- K-Means clustering
+- Elbow method optimisation
+- Cluster profiling
+- Outlier detection
+
+This enables companies with similar financial characteristics to be analysed together.
+
+---
+
+# 📦 Analytics Outputs
+
+The Financial Analytics Engine generates numerous analytical datasets consumed by downstream modules.
+
+### Generated Reports
+
+- Financial Ratios
+- Composite Scores
+- Valuation Metrics
+- Peer Percentiles
+- Cash Flow Intelligence
+- Capital Allocation Patterns
+- Pros & Cons
+- Screener Results
+- Cluster Labels
+- Radar Charts
+
+These outputs power the reporting engine, REST APIs, and Streamlit dashboard, ensuring consistent analytical results across the entire platform.
+
+---
+
+# 🚀 Analytics Engine Highlights
+
+- Automated financial ratio computation
+- Growth and CAGR analysis
+- Sector-relative investment scoring
+- Intelligent company screening
+- Peer benchmarking
+- Cash flow quality assessment
+- Capital allocation analysis
+- Explainable NLP-generated insights
+- Machine learning–based clustering
+- Unified analytical pipeline across all modules
+
+---
+
+# 📄 Reporting Engine
+
+The Reporting Engine transforms analytical results into professionally formatted documents, enabling analysts and stakeholders to review financial insights without interacting directly with the database or dashboard.
+
+Built using **ReportLab**, the reporting framework automatically generates company-level, sector-level, and portfolio-level reports with charts, KPIs, and AI-generated commentary.
+
+---
+
+# 📑 Company Tearsheets
+
+One of the flagship features of the platform is the automated generation of **two-page company tearsheets**.
+
+Each tearsheet consolidates financial information, analytical metrics, visualisations, and investment commentary into a concise report suitable for investment research.
+
+## Page 1
+
+Includes:
+
+- Company Profile
+- Sector & Industry
+- Key Financial KPIs
+- Revenue Trend
+- Net Profit Trend
+- ROE & ROCE Analysis
+
+---
+
+## Page 2
+
+Includes:
+
+- Balance Sheet Composition
+- Cash Flow Waterfall
+- NLP Generated Pros
+- NLP Generated Cons
+- Capital Allocation Classification
+- Cash Flow Intelligence Summary
+
+Each report is automatically generated with consistent formatting and layout, ensuring readability and preventing text overflow.
+
+---
+
+# 🏢 Sector Reports
+
+The platform automatically generates sector-wise analytical reports.
+
+Each report contains:
+
+- Sector Overview
+- Median Financial KPIs
+- Company Comparison Tables
+- Profitability Metrics
+- Growth Metrics
+- Cash Flow Indicators
+- Valuation Summary
+
+These reports provide analysts with a consolidated view of sector performance.
+
+---
+
+# 📚 Portfolio Summary Report
+
+The platform generates a consolidated portfolio report covering every company in the database.
+
+Each company receives a dedicated summary page containing:
+
+- Company Information
+- Sector Classification
+- Key Financial Ratios
+- Trend Indicators
+- Overall Performance Summary
+
+This report provides a high-level overview of the complete investment universe.
+
+---
+
+# 📊 Generated Reports
+
+The reporting engine automatically produces:
+
+| Report | Description |
+|---------|-------------|
+| Company Tearsheets | Two-page PDF report for each company |
+| Sector Reports | One report for each business sector |
+| Portfolio Summary | Consolidated portfolio report |
+| Screener Results | Excel workbook containing screened companies |
+| Peer Comparison | Excel workbook with peer rankings |
+| Cash Flow Intelligence | Advanced cash flow analysis |
+| Valuation Summary | Company valuation metrics |
+
+---
+
+# 🌐 REST API
+
+The platform exposes analytical data through a RESTful API built using **FastAPI**.
+
+The API enables external applications, dashboards, and analytical tools to retrieve financial data programmatically.
+
+Interactive documentation is automatically generated using the **OpenAPI Specification**, allowing developers to explore and test endpoints directly from the browser.
+
+---
+
+# API Capabilities
+
+The REST API provides endpoints for:
+
+- Company Information
+- Financial Ratios
+- Profit & Loss Statements
+- Balance Sheets
+- Cash Flow Statements
+- Investment Screener
+- Sector Analytics
+- Peer Comparison
+- Cash Flow Intelligence
+- Valuation Metrics
+- Portfolio Statistics
+- Health Check
+
+The API follows a modular architecture with dedicated routers and service layers, making it easy to extend and maintain.
+
+---
+
+# 📖 API Documentation
+
+FastAPI automatically generates interactive API documentation.
+
+Available interfaces include:
+
+- Swagger UI
+- OpenAPI JSON Specification
+
+These interfaces simplify endpoint exploration, testing, and third-party integration.
+
+---
+
+# 📊 Interactive Dashboard
+
+The Financial Intelligence Platform includes a multi-page dashboard developed using **Streamlit**.
+
+The dashboard provides an intuitive interface for exploring financial data, running investment screeners, comparing companies, and viewing analytical reports.
+
+It is designed for financial analysts, researchers, and investors who require interactive access to the platform without writing SQL queries or using API clients.
+
+---
+
+# Dashboard Modules
+
+The dashboard is organised into dedicated analytical pages.
+
+### Home
+
+Provides an overview of the platform, key statistics, and navigation.
+
+---
+
+### Company Profile
+
+Displays comprehensive financial information for individual companies, including:
+
+- Company Overview
+- Financial Statements
+- Key Ratios
+- Historical Trends
+- Cash Flow Intelligence
+
+---
+
+### Investment Screener
+
+Allows users to:
+
+- Apply predefined screening strategies
+- Configure custom screening thresholds
+- Rank companies using the Composite Quality Score
+- Export screening results
+
+---
+
+### Peer Analytics
+
+Provides industry benchmarking through:
+
+- Percentile Rankings
+- Radar Charts
+- Company Comparisons
+- Peer Group Statistics
+
+---
+
+### Sector Analytics
+
+Enables comparison of companies within the same sector using:
+
+- Sector Medians
+- Ranking Tables
+- Growth Analysis
+- Profitability Comparison
+
+---
+
+### Cash Flow Intelligence
+
+Visualises advanced cash flow indicators, including:
+
+- CFO Quality
+- CapEx Intensity
+- Distress Signals
+- Capital Allocation Patterns
+
+---
+
+### Reports
+
+Provides access to generated:
+
+- Company Tearsheets
+- Sector Reports
+- Portfolio Reports
+
+allowing users to download analytical outputs directly from the dashboard.
+
+---
+
+# 📈 Data Visualisation
+
+The dashboard incorporates multiple interactive visualisations to support financial analysis.
+
+Examples include:
+
+- Revenue Trends
+- Net Profit Trends
+- ROE & ROCE Comparison
+- Radar Charts
+- Cash Flow Waterfall Charts
+- Balance Sheet Composition
+- Correlation Heatmaps
+- Cluster Analysis
+- Portfolio Statistics
+
+These visualisations enhance interpretability and enable users to identify trends and anomalies more effectively.
+
+---
+
+# 🚀 Reporting & Visualisation Highlights
+
+- Automated PDF generation
+- Professional report layouts
+- Interactive dashboard
+- RESTful API integration
+- OpenAPI documentation
+- Downloadable analytical reports
+- Rich financial visualisations
+- Modular reporting architecture
+
+---
+
+# 🧪 Testing & Quality Assurance
+
+Testing was incorporated throughout the development lifecycle to ensure analytical correctness, API reliability, data integrity, and overall system stability.
+
+The project includes dedicated test suites covering ETL validation, financial calculations, REST APIs, and performance benchmarks.
+
+---
+
+## Testing Strategy
+
+The platform follows a layered testing approach.
+
+### Unit Testing
+
+Validates individual functions and analytical modules.
+
+Coverage includes:
+
+- Financial Ratio Calculations
+- CAGR Engine
+- Valuation Engine
+- Cash Flow Intelligence
+- Capital Allocation
+- Peer Analytics
+- Screener Logic
+
+---
+
+### ETL Testing
+
+Ensures reliable data ingestion and validation.
+
+Tests include:
+
+- Data Normalisation
+- Schema Validation
+- Duplicate Detection
+- Missing Value Handling
+- Company Identifier Validation
+
+---
+
+### API Testing
+
+REST endpoints are validated using automated API tests.
+
+Coverage includes:
+
+- Company Endpoints
+- Financial Data Endpoints
+- Screener Endpoints
+- Sector Analytics
+- Health Check
+
+---
+
+### Performance Testing
+
+Performance tests verify that the platform scales efficiently across the complete dataset.
+
+Areas evaluated include:
+
+- Database Query Performance
+- API Response Time
+- Bulk Report Generation
+- Large Dataset Processing
+
+---
+
+## Test Organisation
 
 ```
-src/analytics/populate_financial_ratios.py
-computed_financial_ratios (SQLite)
+tests/
+
+├── api/
+├── etl/
+├── kpi/
+└── performance/
 ```
 
-**Status:** ✅ Completed
+---
+
+## Quality Assurance
+
+Throughout development the following quality practices were followed.
+
+- Modular Architecture
+- Automated Testing
+- Data Validation
+- Error Handling
+- Code Documentation
+- Configuration-driven Design
+- Separation of Concerns
+
+These practices improve maintainability, reliability, and future extensibility of the platform.
 
 ---
 
-# 📊 Current Project Status
+# ⚡ Installation
 
-## Completed Sprints
+## Prerequisites
 
-| Sprint | Status |
-|---------|--------|
-| Sprint 1 – Data Foundation | ✅ Completed |
-| Sprint 2 – Financial Ratio Engine | 🟡 5 of 7 Days Completed (Day 08–12) |
+Before running the project, ensure the following software is installed.
 
----
-
-## Overall Progress
-
-| Item | Progress |
-|------|----------|
-| Project Duration | 12 / 42 Days |
-| Sprints Completed | 1 |
-| Current Sprint | Sprint 2 |
-| Companies Loaded | 92 |
-| Database Tables | 11 |
-| Company-Year Financial Records | 1177 |
-| KPIs Implemented | 20+ |
-| Data Quality Rules | 16 |
-| Unit Tests | 48+ Passed |
-| SQLite Database | Operational |
-| Financial Ratio Engine | Operational |
+- Python 3.11 or later
+- Git
+- SQLite
+- pip
 
 ---
 
-# 🚀 Upcoming Work
+## Clone Repository
 
-The remaining work for Sprint 2 includes:
+```bash
+git clone <repository-url>
 
-## Day 13
+cd financial_intelligence_platform
+```
 
-- Bank ROCE carve-out
-- ROCE anomaly detection
-- ROE anomaly detection
-- Ratio edge case logging
-- Edge case categorisation
+---
 
-## Day 14
+## Create Virtual Environment
 
-- KPI formula validation
-- Full test execution
-- Manual verification
-- Sprint retrospective
-- Documentation updates
-- Sprint review and sign-off
+Windows
+
+```bash
+python -m venv venv
+```
+
+Activate
+
+```bash
+venv\Scripts\activate
+```
+
+Linux / macOS
+
+```bash
+python3 -m venv venv
+
+source venv/bin/activate
+```
+
+---
+
+## Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# ▶️ Running the Project
+
+## Step 1 – Execute ETL Pipeline
+
+```bash
+python src/etl/load_database.py
+```
+
+This imports, validates, and loads financial datasets into SQLite.
+
+---
+
+## Step 2 – Generate Financial Analytics
+
+```bash
+python src/analytics/populate_financial_ratios.py
+```
+
+Computes all analytical metrics.
+
+---
+
+## Step 3 – Generate Reports
+
+```bash
+python src/reports/generate_reports.py
+```
+
+Creates:
+
+- Company Tearsheets
+- Sector Reports
+- Portfolio Summary
+
+---
+
+## Step 4 – Launch REST API
+
+```bash
+uvicorn src.api.main:app --reload
+```
+
+Swagger UI
+
+```
+http://localhost:8000/docs
+```
+
+---
+
+## Step 5 – Launch Dashboard
+
+```bash
+streamlit run src/dashboard/app.py
+```
+
+---
+
+## Step 6 – Execute Tests
+
+```bash
+pytest tests -v
+```
+
+---
+
+# 📂 Generated Outputs
+
+Successful execution produces a comprehensive set of analytical outputs.
+
+### Excel Reports
+
+- Screener Results
+- Peer Comparison
+- Cash Flow Intelligence
+- Valuation Summary
+
+---
+
+### CSV Reports
+
+- Analysis Parser Output
+- Pros & Cons
+- Distress Alerts
+- Capital Allocation
+- Cluster Labels
+- Pattern Changes
+- Validation Reports
+
+---
+
+### PDF Reports
+
+- Company Tearsheets
+- Sector Reports
+- Portfolio Summary
+
+---
+
+### Visualisations
+
+- Radar Charts
+- Correlation Heatmaps
+- Elbow Plot
+- Dashboard Charts
+
+---
+
+# 📸 Project Screenshots
+
+The repository includes screenshots demonstrating the major components of the platform.
+
+Suggested screenshots:
+
+- Streamlit Dashboard
+- Company Profile
+- Investment Screener
+- Peer Analytics
+- FastAPI Swagger UI
+- Company Tearsheet
+- Sector Report
+- Portfolio Summary
+
+These provide a visual overview of the platform's capabilities.
+
+---
+
+# 🚀 Future Enhancements
+
+The current implementation provides a strong analytical foundation and can be extended with additional enterprise-grade capabilities.
+
+Potential enhancements include:
+
+- PostgreSQL or MySQL backend
+- Docker containerisation
+- Cloud deployment
+- User authentication and role management
+- Live NSE/BSE market data integration
+- Portfolio optimisation algorithms
+- AI-powered investment recommendations
+- Scheduled ETL workflows
+- Email-based automated reporting
+- Real-time financial alerts
 
 ---
 
@@ -1220,210 +1905,5 @@ The remaining work for Sprint 2 includes:
 
 **Bhimishetti Lohith**
 
-B.Tech – Computer Science & Engineering
-
-Sir Padampat Singhania University
-
----
-
-# ⭐ Repository
-
-**GitHub Repository**
-
-https://github.com/bhimishettilohith/financial-intelligence-platform
-
-
----
-
-# 📊 Outputs Generated
-
-Throughout the first two sprints, the project generates several reports, database artifacts, and analytical outputs. These outputs serve as verification evidence for successful ETL execution, data validation, and financial ratio computation.
-
-## Sprint 1 Outputs
-
-| Output | Description |
-|---------|-------------|
-| `nifty100.db` | SQLite database containing normalized financial data |
-| `load_audit.csv` | Table-wise record count generated after database loading |
-| `validation_failures.csv` | Data quality violations identified during ETL validation |
-| `exploratory_queries.sql` | SQL queries used for manual database verification |
-| ETL Unit Tests | Validation of normalization and loader functions |
-
----
-
-## Sprint 2 Outputs
-
-| Output | Description |
-|---------|-------------|
-| `capital_allocation.csv` | Company-wise capital allocation classification |
-| `computed_financial_ratios` | SQLite table containing calculated financial KPIs |
-| Financial Ratio Engine | Automated KPI computation for every company-year |
-| CAGR Engine | Revenue, PAT and EPS growth calculations |
-| Composite Quality Score | Overall financial quality score for each company |
-
----
-
-# 🗂 Database Overview
-
-The SQLite database currently contains the following major tables.
-
-| Table | Purpose |
-|---------|----------|
-| companies | Company master information |
-| profitandloss | Income Statement |
-| balancesheet | Balance Sheet |
-| cashflow | Cash Flow Statement |
-| analysis | Additional financial analysis |
-| documents | Company reports and documents |
-| prosandcons | Business strengths and weaknesses |
-| financial_ratios | Source financial ratios |
-| stock_prices | Historical stock prices |
-| sectors | Sector classification |
-| peer_groups | Comparable companies |
-
-All tables are linked using relational constraints to maintain referential integrity.
-
----
-
-# 🧪 Testing & Validation
-
-Testing has been an integral part of every sprint to ensure correctness and reliability.
-
-## ETL Validation
-
-- Header normalization
-- Year normalization
-- Company ticker normalization
-- Duplicate detection
-- Foreign key validation
-- Missing value validation
-
----
-
-## KPI Validation
-
-Financial ratio functions were tested for:
-
-- Division by zero
-- Missing values
-- Negative equity
-- Zero borrowings
-- Debt-free companies
-- CAGR edge cases
-- Cash flow classifications
-
----
-
-## Current Test Summary
-
-| Test Category | Status |
-|---------------|--------|
-| ETL Unit Tests | ✅ Passed |
-| KPI Formula Tests | ✅ Passed |
-| Database Validation | ✅ Passed |
-| Foreign Key Validation | ✅ Passed |
-| Manual Spot Check | ✅ Completed |
-
----
-
-# 📈 Current Project Statistics
-
-| Metric | Value |
-|---------|-------|
-| Project Days Completed | 12 / 42 |
-| Sprint Completed | 1 |
-| Current Sprint | Sprint 2 |
-| Companies | 92 |
-| Financial Statement Records | 1177 |
-| Database Tables | 11 |
-| KPIs Implemented | 20+ |
-| Data Quality Rules | 16 |
-| Unit Tests Passing | 48+ |
-| SQLite Database Size | Growing |
-| Programming Language | Python 3.11 |
-
----
-
-# 📌 Folder Description
-
-The repository follows a modular architecture.
-
-| Folder | Purpose |
-|---------|----------|
-| `src/etl` | ETL Pipeline |
-| `src/analytics` | Financial Ratio Engine |
-| `src/api` | Future REST APIs |
-| `src/dashboard` | Future Dashboard |
-| `tests` | Unit Testing |
-| `db` | SQLite Schema & Loader |
-| `reports` | Sprint Reports |
-| `output` | Generated Reports |
-| `data` | Raw & Supporting Datasets |
-
----
-
-# 🚀 Future Roadmap
-
-## Sprint 3
-
-Company Screener Engine
-
-- Multi-filter screening
-- Dynamic SQL builder
-- Industry comparison
-- Market capitalization filters
-
----
-
-## Sprint 4
-
-Scoring Engine
-
-- Composite Quality Score
-- Ranking algorithm
-- Investment score
-- Financial health classification
-
----
-
-## Sprint 5
-
-REST APIs
-
-- Company API
-- Ratio API
-- Screener API
-- Ranking API
-- Swagger Documentation
-
----
-
-## Sprint 6
-
-Dashboard & Deployment
-
-- Streamlit Dashboard
-- Interactive Charts
-- Company Comparison
-- Financial Trends
-- Deployment
-- Final Documentation
-
----
-
-# 🎯 Learning Outcomes
-
-This project demonstrates practical implementation of:
-
-- Data Engineering
-- ETL Pipeline Design
-- Data Validation Frameworks
-- Relational Database Design
-- Financial Statement Analysis
-- Financial Ratio Computation
-- Software Engineering Practices
-- Unit Testing
-- Git Version Control
-- Agile Scrum Methodology
 
 ---
