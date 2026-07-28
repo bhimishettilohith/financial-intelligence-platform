@@ -43,10 +43,7 @@ DISTRESS_FILE = OUTPUT_DIR / "distress_alerts.csv"
 # Logging
 # ==========================================================
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s | %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -56,37 +53,24 @@ logger = logging.getLogger(__name__)
 
 
 def load_profit_loss():
-    return pd.read_excel(
-        PL_FILE,
-        header=1
-    )
+    return pd.read_excel(PL_FILE, header=1)
 
 
 def load_cashflow():
-    return pd.read_excel(
-        CF_FILE,
-        header=1
-    )
+    return pd.read_excel(CF_FILE, header=1)
 
 
 def load_balance_sheet():
-    return pd.read_excel(
-        BS_FILE,
-        header=1
-    )
+    return pd.read_excel(BS_FILE, header=1)
 
 
 def load_companies():
-    return pd.read_excel(
-        COMPANY_FILE,
-        header=1
-    )
+    return pd.read_excel(COMPANY_FILE, header=1)
 
 
 def load_ratios():
-    return pd.read_excel(
-        RATIO_FILE
-    )
+    return pd.read_excel(RATIO_FILE)
+
 
 # ==========================================================
 # Helpers
@@ -97,24 +81,13 @@ def clean_year(df):
 
     df = df.copy()
 
-    df["year"] = (
-        df["year"]
-        .astype(str)
-        .str.extract(r"(\d{4})")[0]
-    )
+    df["year"] = df["year"].astype(str).str.extract(r"(\d{4})")[0]
 
-    df = df.dropna(
-        subset=["year"]
-    )
+    df = df.dropna(subset=["year"])
 
-    df["year"] = (
-        df["year"]
-        .astype(int)
-    )
+    df["year"] = df["year"].astype(int)
 
-    return df.sort_values(
-        "year"
-    )
+    return df.sort_values("year")
 
 
 def latest(df):
@@ -156,20 +129,13 @@ def compute_cagr(
     if df.empty:
         return None
 
-    df = df.sort_values(
-        "year"
-    )
+    df = df.sort_values("year")
 
     latest_row = df.iloc[-1]
 
-    target_year = (
-        latest_row["year"]
-        - years
-    )
+    target_year = latest_row["year"] - years
 
-    history = df[
-        df.year <= target_year
-    ]
+    history = df[df.year <= target_year]
 
     if history.empty:
         return None
@@ -177,21 +143,17 @@ def compute_cagr(
     oldest = history.iloc[-1]
 
     value, status = calculate_cagr(
-
         oldest[column],
-
         latest_row[column],
-
         years,
-
         years,
-
     )
 
     if status != "OK":
         return None
 
     return round(value, 2)
+
 
 # ==========================================================
 # KPI Calculations
@@ -210,12 +172,8 @@ def calculate_free_cash_flow(
     """
 
     return round(
-
-        operating_activity
-        + investing_activity,
-
+        operating_activity + investing_activity,
         2,
-
     )
 
 
@@ -256,15 +214,8 @@ def calculate_capex_intensity(
         return None, None
 
     intensity = round(
-
-        abs(investing_activity)
-
-        / sales
-
-        * 100,
-
+        abs(investing_activity) / sales * 100,
         2,
-
     )
 
     if intensity < 3:
@@ -281,6 +232,7 @@ def calculate_capex_intensity(
 
     return intensity, label
 
+
 # ==========================================================
 # Snapshot Builder
 # ==========================================================
@@ -295,31 +247,10 @@ def get_company_snapshot(
 ):
 
     return {
-
-        "pl": clean_year(
-            pl[
-                pl.company_id == company_id
-            ]
-        ),
-
-        "cf": clean_year(
-            cf[
-                cf.company_id == company_id
-            ]
-        ),
-
-        "bs": clean_year(
-            bs[
-                bs.company_id == company_id
-            ]
-        ),
-
-        "ratios": clean_year(
-            ratios[
-                ratios.company_id == company_id
-            ]
-        )
-
+        "pl": clean_year(pl[pl.company_id == company_id]),
+        "cf": clean_year(cf[cf.company_id == company_id]),
+        "bs": clean_year(bs[bs.company_id == company_id]),
+        "ratios": clean_year(ratios[ratios.company_id == company_id]),
     }
 
 
@@ -337,17 +268,8 @@ def calculate_fcf_conversion(
         return None
 
     return round(
-
-        free_cash_flow
-
-        /
-
-        net_profit
-
-        * 100,
-
+        free_cash_flow / net_profit * 100,
         2,
-
     )
 
 
@@ -357,15 +279,10 @@ def calculate_fcf_conversion(
 
 
 def classify_capital_allocation(
-
     cfo,
-
     cfi,
-
     cff,
-
     cfo_quality=None,
-
 ):
 
     cfo_sign = "+" if cfo >= 0 else "-"
@@ -375,26 +292,14 @@ def classify_capital_allocation(
     cff_sign = "+" if cff >= 0 else "-"
 
     pattern = (
-
         cfo_sign,
-
         cfi_sign,
-
         cff_sign,
-
     )
 
     if pattern == ("+", "-", "-"):
 
-        if (
-
-            cfo_quality is not None
-
-            and
-
-            cfo_quality > 1
-
-        ):
+        if cfo_quality is not None and cfo_quality > 1:
 
             label = "Shareholder Returns"
 
@@ -430,7 +335,13 @@ def classify_capital_allocation(
 
         label = "Other"
 
-    return label
+    return {
+        "pattern_label": label,
+        "cash_flow_pattern": "".join(pattern),
+        "cfo_positive": cfo >= 0,
+        "cfi_positive": cfi >= 0,
+        "cff_positive": cff >= 0,
+    }
 
 
 # ==========================================================
@@ -441,25 +352,15 @@ def classify_capital_allocation(
 def average_cfo_quality(snapshot):
 
     merged = pd.merge(
-
         snapshot["cf"],
-
         snapshot["pl"][
-
             [
-
                 "year",
-
                 "net_profit",
-
             ]
-
         ],
-
         on="year",
-
         how="inner",
-
     )
 
     merged = merged.tail(5)
@@ -473,11 +374,8 @@ def average_cfo_quality(snapshot):
     for _, row in merged.iterrows():
 
         score, _ = calculate_cfo_quality_score(
-
             row["operating_activity"],
-
             row["net_profit"],
-
         )
 
         if score is not None:
@@ -489,15 +387,8 @@ def average_cfo_quality(snapshot):
         return None, None
 
     average = round(
-
-        sum(scores)
-
-        /
-
-        len(scores),
-
+        sum(scores) / len(scores),
         2,
-
     )
 
     if average > 1:
@@ -523,55 +414,32 @@ def average_cfo_quality(snapshot):
 def calculate_fcf_cagr(snapshot):
 
     merged = pd.merge(
-
         snapshot["cf"],
-
         snapshot["pl"][
-
             [
-
                 "year",
-
                 "sales",
-
             ]
-
         ],
-
         on="year",
-
         how="inner",
-
     )
 
     if len(merged) < 6:
 
         return None
 
-    merged["fcf"] = (
-
-        merged["operating_activity"]
-
-        +
-
-        merged["investing_activity"]
-
-    )
+    merged["fcf"] = merged["operating_activity"] + merged["investing_activity"]
 
     oldest = merged.iloc[-6]
 
     latest_row = merged.iloc[-1]
 
     value, status = calculate_cagr(
-
         oldest["fcf"],
-
         latest_row["fcf"],
-
         5,
-
         5,
-
     )
 
     if status != "OK":
@@ -579,11 +447,8 @@ def calculate_fcf_cagr(snapshot):
         return None
 
     return round(
-
         value,
-
         2,
-
     )
 
 
@@ -594,48 +459,22 @@ def calculate_fcf_cagr(snapshot):
 
 def detect_distress(snapshot):
 
-    latest_cf = latest(
+    latest_cf = latest(snapshot["cf"])
 
-        snapshot["cf"]
+    latest_pl = latest(snapshot["pl"])
 
-    )
-
-    latest_pl = latest(
-
-        snapshot["pl"]
-
-    )
-
-    if (
-
-        latest_cf is None
-
-        or
-
-        latest_pl is None
-
-    ):
+    if latest_cf is None or latest_pl is None:
 
         return False, None
 
     distressed = (
-
-        latest_cf["operating_activity"] < 0
-
-        and
-
-        latest_cf["financing_activity"] > 0
-
+        latest_cf["operating_activity"] < 0 and latest_cf["financing_activity"] > 0
     )
 
     details = {
-
         "cfo": latest_cf["operating_activity"],
-
         "cff": latest_cf["financing_activity"],
-
         "net_profit": latest_pl["net_profit"],
-
     }
 
     return distressed, details
@@ -649,30 +488,16 @@ def detect_distress(snapshot):
 def detect_deleveraging(snapshot):
 
     cf = last_n(
-
         snapshot["cf"],
-
         2,
-
     )
 
     bs = last_n(
-
         snapshot["bs"],
-
         2,
-
     )
 
-    if (
-
-        cf.empty
-
-        or
-
-        bs.empty
-
-    ):
+    if cf.empty or bs.empty:
 
         return False
 
@@ -683,18 +508,10 @@ def detect_deleveraging(snapshot):
     latest_bs = bs.iloc[-1]
 
     return (
-
         latest_cf["financing_activity"] < 0
-
-        and
-
-        latest_bs["borrowings"]
-
-        <
-
-        previous_bs["borrowings"]
-
+        and latest_bs["borrowings"] < previous_bs["borrowings"]
     )
+
 
 # ==========================================================
 # Generate Intelligence
@@ -745,9 +562,7 @@ def generate_cashflow_intelligence():
         # CFO Quality
         # -----------------------------------
 
-        cfo_quality_score, cfo_quality_label = (
-            average_cfo_quality(snapshot)
-        )
+        cfo_quality_score, cfo_quality_label = average_cfo_quality(snapshot)
 
         # -----------------------------------
         # CapEx Intensity
@@ -786,23 +601,19 @@ def generate_cashflow_intelligence():
         # Distress
         # -----------------------------------
 
-        distress_flag, distress_details = detect_distress(
-            snapshot
-        )
+        distress_flag, distress_details = detect_distress(snapshot)
 
         # -----------------------------------
         # Deleveraging
         # -----------------------------------
 
-        deleveraging_flag = detect_deleveraging(
-            snapshot
-        )
+        deleveraging_flag = detect_deleveraging(snapshot)
 
         # -----------------------------------
         # Capital Allocation
         # -----------------------------------
 
-        capital_label = classify_capital_allocation(
+        capital_info = classify_capital_allocation(
             latest_cf["operating_activity"],
             latest_cf["investing_activity"],
             latest_cf["financing_activity"],
@@ -835,7 +646,7 @@ def generate_cashflow_intelligence():
                 "fcf_conversion_pct": fcf_conversion,
                 "distress_flag": distress_flag,
                 "deleveraging_flag": deleveraging_flag,
-                "capital_allocation_label": capital_label,
+                "capital_allocation_label": capital_info,
             }
         )
 
@@ -907,5 +718,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-
-

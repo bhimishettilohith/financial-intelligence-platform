@@ -21,23 +21,21 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-
 from reportlab.lib import colors
+from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import (
     ParagraphStyle,
     getSampleStyleSheet,
 )
-from reportlab.lib.colors import HexColor
 from reportlab.lib.units import inch
-
 from reportlab.platypus import (
-    SimpleDocTemplate,
+    PageBreak,
     Paragraph,
+    SimpleDocTemplate,
     Spacer,
     Table,
     TableStyle,
-    PageBreak,
 )
 
 from src.reports.tearsheet import (
@@ -220,29 +218,18 @@ class SectorRepository:
         df = self.merged_dataset()
 
         return (
-
-            df[
-                df["broad_sector"] == sector_name
-            ]
-
-            .sort_values(
-                "company_name"
-            )
-
+            df[df["broad_sector"] == sector_name]
+            .sort_values("company_name")
             .reset_index(drop=True)
-
         )
 
     def sectors_list(self):
         """
         Return all unique broad sectors sorted alphabetically.
         """
-        return sorted(
-            self.sectors["broad_sector"]
-            .dropna()
-            .unique()
-            .tolist()
-        )
+        return sorted(self.sectors["broad_sector"].dropna().unique().tolist())
+
+
 # ----------------------------------------------------------
 # Sector Report Generator
 # ----------------------------------------------------------
@@ -287,45 +274,15 @@ class SectorReportGenerator:
     def sector_summary(self, df):
 
         return {
-
-            "Companies":
-                len(df),
-
-            "Median Revenue":
-                self._median(df["sales"]),
-
-            "Median Net Profit":
-                self._median(df["net_profit"]),
-
-            "Median ROE":
-                self._median(
-                    df["return_on_equity_pct"]
-                ),
-
-            "Median ROCE":
-                self._median(
-                    df["roce_percentage"]
-                ),
-
-            "Median PE":
-                self._median(
-                    df["pe_ratio"]
-                ),
-
-            "Median Market Cap":
-                self._median(
-                    df["market_cap_crore"]
-                ),
-
-            "Median Dividend":
-                self._median(
-                    df["dividend_payout"]
-                ),
-
-            "Median EPS":
-                self._median(
-                    df["eps"]
-                ),
+            "Companies": len(df),
+            "Median Revenue": self._median(df["sales"]),
+            "Median Net Profit": self._median(df["net_profit"]),
+            "Median ROE": self._median(df["return_on_equity_pct"]),
+            "Median ROCE": self._median(df["roce_percentage"]),
+            "Median PE": self._median(df["pe_ratio"]),
+            "Median Market Cap": self._median(df["market_cap_crore"]),
+            "Median Dividend": self._median(df["dividend_payout"]),
+            "Median EPS": self._median(df["eps"]),
         }
 
     # ------------------------------------------------------
@@ -338,15 +295,10 @@ class SectorReportGenerator:
     ):
 
         story.append(
-
             Paragraph(
-
                 sector_name,
-
                 TITLE_STYLE,
-
             )
-
         )
 
         story.append(
@@ -356,26 +308,19 @@ class SectorReportGenerator:
             )
         )
 
-        summary = self.sector_summary(
-            df
-        )
+        summary = self.sector_summary(df)
 
         rows = [
-
             [
-
                 Paragraph(
                     "<b>Metric</b>",
                     BODY_STYLE,
                 ),
-
                 Paragraph(
                     "<b>Value</b>",
                     BODY_STYLE,
                 ),
-
             ]
-
         ]
 
         for metric, value in summary.items():
@@ -391,54 +336,41 @@ class SectorReportGenerator:
                 )
 
             rows.append(
-
                 [
-
                     Paragraph(
                         str(metric),
                         BODY_STYLE,
                     ),
-
                     Paragraph(
                         str(value),
                         BODY_STYLE,
                     ),
-
                 ]
-
             )
 
         table = Table(
-
             rows,
-
             colWidths=[
                 3.5 * inch,
                 2.0 * inch,
             ],
-
         )
 
         table.setStyle(
-
             TableStyle(
-
                 [
-
                     (
                         "BACKGROUND",
                         (0, 0),
                         (-1, 0),
                         NAVY,
                     ),
-
                     (
                         "TEXTCOLOR",
                         (0, 0),
                         (-1, 0),
                         colors.white,
                     ),
-
                     (
                         "GRID",
                         (0, 0),
@@ -446,48 +378,38 @@ class SectorReportGenerator:
                         0.5,
                         colors.grey,
                     ),
-
                     (
                         "BACKGROUND",
                         (0, 1),
                         (-1, -1),
                         LIGHT_GREY,
                     ),
-
                     (
                         "BOTTOMPADDING",
                         (0, 0),
                         (-1, 0),
                         8,
                     ),
-
                     (
                         "FONTNAME",
                         (0, 0),
                         (-1, 0),
                         "Helvetica-Bold",
                     ),
-
                     (
                         "FONTNAME",
                         (0, 1),
                         (-1, -1),
                         "Helvetica",
                     ),
-
                 ]
-
             )
-
         )
 
-        story.append(
-            table
-        )
+        story.append(table)
 
-        story.append(
-            PageBreak()
-        )
+        story.append(PageBreak())
+
     # ------------------------------------------------------
 
     def build_company_table(
@@ -503,62 +425,52 @@ class SectorReportGenerator:
             )
         )
 
-        rows = [[
-            "Company",
-            "Revenue",
-            "Profit",
-            "ROE",
-            "ROCE",
-            "PE",
-            "Market Cap",
-            "Dividend",
-            "EPS",
-        ]]
+        rows = [
+            [
+                "Company",
+                "Revenue",
+                "Profit",
+                "ROE",
+                "ROCE",
+                "PE",
+                "Market Cap",
+                "Dividend",
+                "EPS",
+            ]
+        ]
 
         for _, row in df.iterrows():
 
-            rows.append([
-
-                row["company_name"],
-
-                self._fmt(
-                    row["sales"]
-                ),
-
-                self._fmt(
-                    row["net_profit"]
-                ),
-
-                self._fmt(
-                    row["return_on_equity_pct"],
-                    2,
-                ),
-
-                self._fmt(
-                    row["roce_percentage"],
-                    2,
-                ),
-
-                self._fmt(
-                    row["pe_ratio"],
-                    2,
-                ),
-
-                self._fmt(
-                    row["market_cap_crore"],
-                ),
-
-                self._fmt(
-                    row["dividend_payout"],
-                    2,
-                ),
-
-                self._fmt(
-                    row["eps"],
-                    2,
-                ),
-
-            ])
+            rows.append(
+                [
+                    row["company_name"],
+                    self._fmt(row["sales"]),
+                    self._fmt(row["net_profit"]),
+                    self._fmt(
+                        row["return_on_equity_pct"],
+                        2,
+                    ),
+                    self._fmt(
+                        row["roce_percentage"],
+                        2,
+                    ),
+                    self._fmt(
+                        row["pe_ratio"],
+                        2,
+                    ),
+                    self._fmt(
+                        row["market_cap_crore"],
+                    ),
+                    self._fmt(
+                        row["dividend_payout"],
+                        2,
+                    ),
+                    self._fmt(
+                        row["eps"],
+                        2,
+                    ),
+                ]
+            )
 
         table = Table(
             rows,
@@ -566,61 +478,53 @@ class SectorReportGenerator:
         )
 
         table.setStyle(
-
-            TableStyle([
-
-                (
-                    "BACKGROUND",
-                    (0, 0),
-                    (-1, 0),
-                    NAVY,
-                ),
-
-                (
-                    "TEXTCOLOR",
-                    (0, 0),
-                    (-1, 0),
-                    colors.white,
-                ),
-
-                (
-                    "FONTNAME",
-                    (0, 0),
-                    (-1, 0),
-                    "Helvetica-Bold",
-                ),
-
-                (
-                    "GRID",
-                    (0, 0),
-                    (-1, -1),
-                    0.25,
-                    colors.grey,
-                ),
-
-                (
-                    "BACKGROUND",
-                    (0, 1),
-                    (-1, -1),
-                    LIGHT_GREY,
-                ),
-
-                (
-                    "FONTSIZE",
-                    (0, 0),
-                    (-1, -1),
-                    7,
-                ),
-
-                (
-                    "BOTTOMPADDING",
-                    (0, 0),
-                    (-1, 0),
-                    6,
-                ),
-
-            ])
-
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        NAVY,
+                    ),
+                    (
+                        "TEXTCOLOR",
+                        (0, 0),
+                        (-1, 0),
+                        colors.white,
+                    ),
+                    (
+                        "FONTNAME",
+                        (0, 0),
+                        (-1, 0),
+                        "Helvetica-Bold",
+                    ),
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.25,
+                        colors.grey,
+                    ),
+                    (
+                        "BACKGROUND",
+                        (0, 1),
+                        (-1, -1),
+                        LIGHT_GREY,
+                    ),
+                    (
+                        "FONTSIZE",
+                        (0, 0),
+                        (-1, -1),
+                        7,
+                    ),
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, 0),
+                        6,
+                    ),
+                ]
+            )
         )
 
         story.append(table)
@@ -637,9 +541,7 @@ class SectorReportGenerator:
             sector_name,
         )
 
-        df = self.repo.companies_in_sector(
-            sector_name
-        )
+        df = self.repo.companies_in_sector(sector_name)
 
         if df.empty:
 
@@ -658,10 +560,7 @@ class SectorReportGenerator:
             + "_report.pdf"
         )
 
-        pdf = (
-            SECTOR_REPORT_DIR
-            / filename
-        )
+        pdf = SECTOR_REPORT_DIR / filename
 
         doc = SimpleDocTemplate(
             str(pdf),
@@ -680,9 +579,7 @@ class SectorReportGenerator:
             df,
         )
 
-        doc.build(
-            story
-        )
+        doc.build(story)
 
         logger.info(
             "Saved -> %s",
@@ -702,17 +599,11 @@ class SectorReportGenerator:
 
         for sector in sectors:
 
-            self.generate_sector_report(
-                sector
-            )
+            self.generate_sector_report(sector)
 
-        logger.info(
-            "-" * 60
-        )
+        logger.info("-" * 60)
 
-        logger.info(
-            "Completed"
-        )
+        logger.info("Completed")
 
         logger.info(
             "Reports : %s",

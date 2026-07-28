@@ -1,5 +1,5 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
 import pandas as pd
 
@@ -79,9 +79,7 @@ class BatchTearsheetGenerator:
 
         if self.skipped:
 
-            pd.DataFrame(
-                self.skipped
-            ).to_csv(
+            pd.DataFrame(self.skipped).to_csv(
                 OUTPUT_DIR / "skipped_tearsheets.csv",
                 index=False,
             )

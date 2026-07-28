@@ -20,38 +20,18 @@ RED_FILL = PatternFill(
 
 
 COLUMN_MAPPING = {
-
     "roe_min": "return_on_equity_pct",
-
     "free_cash_flow_min": "free_cash_flow_cr",
-
     "revenue_cagr_5yr_min": "revenue_cagr_5yr",
-
     "pat_cagr_5yr_min": "pat_cagr_5yr",
-
-    "operating_profit_margin_min":
-        "operating_profit_margin_pct",
-
-    "interest_coverage_min":
-        "interest_coverage",
-
-    "net_profit_min":
-        "net_profit",
-
-    "eps_cagr_5yr_min":
-        "eps_cagr_5yr",
-
-    "asset_turnover_min":
-        "asset_turnover",
-
-    "sales_min":
-        "sales",
-
-    "debt_to_equity_max":
-        "debt_to_equity",
-
-    "dividend_payout_max":
-        "dividend_payout",
+    "operating_profit_margin_min": "operating_profit_margin_pct",
+    "interest_coverage_min": "interest_coverage",
+    "net_profit_min": "net_profit",
+    "eps_cagr_5yr_min": "eps_cagr_5yr",
+    "asset_turnover_min": "asset_turnover",
+    "sales_min": "sales",
+    "debt_to_equity_max": "debt_to_equity",
+    "dividend_payout_max": "dividend_payout",
 }
 
 
@@ -77,16 +57,11 @@ def export_all_screeners(
                 index=False,
             )
 
-            worksheet = writer.sheets[
-                sheet_name[:31]
-            ]
+            worksheet = writer.sheets[sheet_name[:31]]
 
             preset = presets[sheet_name]
 
-            headers = {
-                cell.value: cell.column
-                for cell in worksheet[1]
-            }
+            headers = {cell.value: cell.column for cell in worksheet[1]}
 
             for filter_name, threshold in preset.items():
 
@@ -96,18 +71,14 @@ def export_all_screeners(
                 if filter_name not in COLUMN_MAPPING:
                     continue
 
-                column_name = COLUMN_MAPPING[
-                    filter_name
-                ]
+                column_name = COLUMN_MAPPING[filter_name]
 
                 if column_name not in headers:
                     continue
 
                 col = headers[column_name]
 
-                is_max_filter = filter_name.endswith(
-                    "_max"
-                )
+                is_max_filter = filter_name.endswith("_max")
 
                 for row in range(
                     2,

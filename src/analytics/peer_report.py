@@ -128,9 +128,7 @@ class PeerComparisonReport:
         )
 
         self.company_master.rename(
-            columns={
-                "id": "company_id"
-            },
+            columns={"id": "company_id"},
             inplace=True,
         )
 
@@ -139,33 +137,22 @@ class PeerComparisonReport:
         peer_group: str,
     ) -> pd.DataFrame:
 
-        df = self.percentiles[
-            self.percentiles["peer_group_name"] == peer_group
-        ].copy()
+        df = self.percentiles[self.percentiles["peer_group_name"] == peer_group].copy()
 
-        value_table = (
-            df.pivot_table(
-                index="company_id",
-                columns="metric",
-                values="value",
-            )
-            .reset_index()
-        )
+        value_table = df.pivot_table(
+            index="company_id",
+            columns="metric",
+            values="value",
+        ).reset_index()
 
-        percentile_table = (
-            df.pivot_table(
-                index="company_id",
-                columns="metric",
-                values="percentile_rank",
-            )
-            .reset_index()
-        )
+        percentile_table = df.pivot_table(
+            index="company_id",
+            columns="metric",
+            values="percentile_rank",
+        ).reset_index()
 
         percentile_table.rename(
-            columns={
-                metric: f"{metric}_pct"
-                for metric in METRIC_ORDER
-            },
+            columns={metric: f"{metric}_pct" for metric in METRIC_ORDER},
             inplace=True,
         )
 
@@ -187,16 +174,13 @@ class PeerComparisonReport:
         )
 
         return result
-    
 
     def create_sheet(
         self,
         peer_group: str,
     ):
 
-        ws = self.workbook.create_sheet(
-            title=peer_group[:31]
-        )
+        ws = self.workbook.create_sheet(title=peer_group[:31])
 
         headers = [
             "Company ID",
@@ -205,13 +189,9 @@ class PeerComparisonReport:
 
         for metric in METRIC_ORDER:
 
-            headers.append(
-                METRIC_LABELS[metric]
-            )
+            headers.append(METRIC_LABELS[metric])
 
-            headers.append(
-                f"{METRIC_LABELS[metric]} Percentile"
-            )
+            headers.append(f"{METRIC_LABELS[metric]} Percentile")
 
         for col, header in enumerate(headers, start=1):
 
@@ -242,9 +222,7 @@ class PeerComparisonReport:
 
             for metric in METRIC_ORDER:
 
-                values.append(
-                    row.get(metric)
-                )
+                values.append(row.get(metric))
 
                 pct = row.get(f"{metric}_pct")
 
@@ -264,9 +242,7 @@ class PeerComparisonReport:
                 cell.border = THIN_BORDER
 
                 if col_num > 2:
-                    cell.alignment = Alignment(
-                        horizontal="center"
-                    )
+                    cell.alignment = Alignment(horizontal="center")
 
             # ---------------------------------
             # Percentile colour formatting
@@ -319,8 +295,6 @@ class PeerComparisonReport:
             row_num += 1
 
         return ws, df
-    
-
 
     def add_median_row(
         self,
@@ -379,26 +353,18 @@ class PeerComparisonReport:
         for column_cells in ws.columns:
 
             length = max(
-                len(str(cell.value))
-                if cell.value is not None
-                else 0
+                len(str(cell.value)) if cell.value is not None else 0
                 for cell in column_cells
             )
 
-            ws.column_dimensions[
-                column_cells[0].column_letter
-            ].width = min(
+            ws.column_dimensions[column_cells[0].column_letter].width = min(
                 max(length + 2, 12),
                 35,
             )
 
     def generate(self):
 
-        peer_groups = sorted(
-            self.peer_groups[
-                "peer_group_name"
-            ].dropna().unique()
-        )
+        peer_groups = sorted(self.peer_groups["peer_group_name"].dropna().unique())
 
         for peer_group in peer_groups:
 
@@ -413,9 +379,7 @@ class PeerComparisonReport:
 
             self.autofit_columns(ws)
 
-        self.workbook.save(
-            OUTPUT_FILE
-        )
+        self.workbook.save(OUTPUT_FILE)
 
         print("=" * 70)
         print("PEER COMPARISON REPORT")

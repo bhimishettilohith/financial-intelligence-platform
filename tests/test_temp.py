@@ -3,9 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from src.etl.normaliser import normalize_year
-from src.etl.normaliser import normalize_ticker
-
+from src.etl.normaliser import normalize_ticker, normalize_year
 
 print(normalize_year("FY24"))
 print(normalize_year("2024"))

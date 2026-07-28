@@ -3,11 +3,10 @@ Capital Allocation Report
 Sprint 5 - Day 32
 """
 
-from pathlib import Path
 import logging
+from pathlib import Path
 
 import pandas as pd
-
 
 # ------------------------------------------------------------------
 # Logging
@@ -31,26 +30,19 @@ OUTPUT_DIR = PROJECT_ROOT / "output"
 
 CAPITAL_ALLOCATION_FILE = OUTPUT_DIR / "capital_allocation.csv"
 
-CASHFLOW_INTELLIGENCE_FILE = (
-    OUTPUT_DIR / "cashflow_intelligence.xlsx"
-)
+CASHFLOW_INTELLIGENCE_FILE = OUTPUT_DIR / "cashflow_intelligence.xlsx"
 
-UPDATED_CASHFLOW_FILE = (
-    OUTPUT_DIR / "cashflow_intelligence.xlsx"
-)
+UPDATED_CASHFLOW_FILE = OUTPUT_DIR / "cashflow_intelligence.xlsx"
 
-DISTRIBUTION_FILE = (
-    OUTPUT_DIR / "capital_allocation_distribution.csv"
-)
+DISTRIBUTION_FILE = OUTPUT_DIR / "capital_allocation_distribution.csv"
 
-PATTERN_CHANGES_FILE = (
-    OUTPUT_DIR / "pattern_changes.csv"
-)
+PATTERN_CHANGES_FILE = OUTPUT_DIR / "pattern_changes.csv"
 
 
 # ------------------------------------------------------------------
 # Load Data
 # ------------------------------------------------------------------
+
 
 def load_capital_allocation():
 
@@ -69,6 +61,7 @@ def load_cashflow_intelligence():
 # ------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------
+
 
 def clean_year(value):
     """
@@ -101,14 +94,7 @@ def latest_year(df):
 
 def previous_year(df):
 
-    years = (
-        sorted(
-            df["year"]
-            .dropna()
-            .apply(clean_year)
-            .unique()
-        )
-    )
+    years = sorted(df["year"].dropna().apply(clean_year).unique())
 
     if len(years) < 2:
         return None
@@ -120,15 +106,12 @@ def previous_year(df):
 # Validation
 # ------------------------------------------------------------------
 
+
 def verify_capital_allocation(df):
 
     logger.info("Verifying capital allocation coverage...")
 
-    coverage = (
-        df.groupby("company_id")["year"]
-        .nunique()
-        .sort_values()
-    )
+    coverage = df.groupby("company_id")["year"].nunique().sort_values()
 
     logger.info("--------------------------------")
     logger.info("Companies               : %s", len(coverage))
@@ -138,9 +121,11 @@ def verify_capital_allocation(df):
     logger.info("Coverage verification completed successfully.")
     logger.info("--------------------------------")
 
+
 # ------------------------------------------------------------------
 # Distribution Summary
 # ------------------------------------------------------------------
+
 
 def generate_distribution_summary(df):
 
@@ -148,9 +133,7 @@ def generate_distribution_summary(df):
 
     latest = latest_year(df)
 
-    latest_df = df[
-        df["year"].apply(clean_year) == latest
-    ].copy()
+    latest_df = df[df["year"].apply(clean_year) == latest].copy()
 
     # Detect the pattern column automatically
     pattern_column = None
@@ -159,31 +142,22 @@ def generate_distribution_summary(df):
 
         name = column.lower().strip()
 
-        if (
-            "pattern" in name
-            or "allocation" in name
-            or "capital_allocation" in name
-        ):
+        if "pattern" in name or "allocation" in name or "capital_allocation" in name:
             pattern_column = column
             break
 
     if pattern_column is None:
-        raise ValueError(
-            "Could not locate capital allocation pattern column."
-        )
+        raise ValueError("Could not locate capital allocation pattern column.")
 
     summary = (
-        latest_df
-        .groupby(pattern_column)
+        latest_df.groupby(pattern_column)
         .size()
         .reset_index(name="companies")
         .sort_values("companies", ascending=False)
     )
 
     summary.rename(
-        columns={
-            pattern_column: "capital_allocation"
-        },
+        columns={pattern_column: "capital_allocation"},
         inplace=True,
     )
 
@@ -204,32 +178,23 @@ def generate_distribution_summary(df):
 # Update Cashflow Intelligence
 # ------------------------------------------------------------------
 
+
 def update_cashflow_intelligence(
     cashflow_df,
     latest_patterns,
     pattern_column,
 ):
 
-    logger.info(
-        "Updating cashflow intelligence workbook..."
-    )
+    logger.info("Updating cashflow intelligence workbook...")
 
     # Remove existing column if this script has already been run
     if "capital_allocation" in cashflow_df.columns:
-        cashflow_df = cashflow_df.drop(
-            columns=["capital_allocation"]
-        )
+        cashflow_df = cashflow_df.drop(columns=["capital_allocation"])
 
     latest_mapping = (
-        latest_patterns[
-            ["company_id", pattern_column]
-        ]
+        latest_patterns[["company_id", pattern_column]]
         .drop_duplicates(subset=["company_id"])
-        .rename(
-            columns={
-                pattern_column: "capital_allocation"
-            }
-        )
+        .rename(columns={pattern_column: "capital_allocation"})
     )
 
     updated = cashflow_df.merge(
@@ -251,9 +216,11 @@ def update_cashflow_intelligence(
 
     return updated
 
+
 # ------------------------------------------------------------------
 # Pattern Changes
 # ------------------------------------------------------------------
+
 
 def generate_pattern_changes(df, pattern_column):
 
@@ -282,21 +249,13 @@ def generate_pattern_changes(df, pattern_column):
 
         return empty
 
-    latest_df = df[
-        df["year"].apply(clean_year) == latest
-    ][["company_id", pattern_column]].rename(
-        columns={
-            pattern_column: "latest_pattern"
-        }
-    )
+    latest_df = df[df["year"].apply(clean_year) == latest][
+        ["company_id", pattern_column]
+    ].rename(columns={pattern_column: "latest_pattern"})
 
-    previous_df = df[
-        df["year"].apply(clean_year) == previous
-    ][["company_id", pattern_column]].rename(
-        columns={
-            pattern_column: "previous_pattern"
-        }
-    )
+    previous_df = df[df["year"].apply(clean_year) == previous][
+        ["company_id", pattern_column]
+    ].rename(columns={pattern_column: "previous_pattern"})
 
     merged = latest_df.merge(
         previous_df,
@@ -304,9 +263,7 @@ def generate_pattern_changes(df, pattern_column):
         how="inner",
     )
 
-    changes = merged[
-        merged["latest_pattern"] != merged["previous_pattern"]
-    ].copy()
+    changes = merged[merged["latest_pattern"] != merged["previous_pattern"]].copy()
 
     changes.insert(
         1,
@@ -347,6 +304,7 @@ def generate_pattern_changes(df, pattern_column):
 # Main
 # ------------------------------------------------------------------
 
+
 def main():
 
     capital_df = load_capital_allocation()
@@ -355,9 +313,7 @@ def main():
 
     cashflow_df = load_cashflow_intelligence()
 
-    latest_patterns, pattern_column = (
-        generate_distribution_summary(capital_df)
-    )
+    latest_patterns, pattern_column = generate_distribution_summary(capital_df)
 
     update_cashflow_intelligence(
         cashflow_df,
@@ -396,4 +352,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

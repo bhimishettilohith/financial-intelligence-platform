@@ -1,14 +1,14 @@
-import streamlit as st
-import plotly.express as px
 import pandas as pd
+import plotly.express as px
+import streamlit as st
 
 from src.dashboard.utils.db import (
     get_companies,
     get_company_profile,
-    get_ratios,
     get_latest_ratios,
     get_pl,
     get_pros_cons,
+    get_ratios,
 )
 
 st.set_page_config(
@@ -28,17 +28,14 @@ company_name = st.selectbox(
     "Search Company",
     companies["company_name"].tolist(),
     index=None,
-    placeholder="Search company..."
+    placeholder="Search company...",
 )
 
 if company_name is None:
     st.info("Select a company from the dropdown.")
     st.stop()
 
-company_id = companies.loc[
-    companies["company_name"] == company_name,
-    "id"
-].iloc[0]
+company_id = companies.loc[companies["company_name"] == company_name, "id"].iloc[0]
 
 # ==========================================================
 # Load Data
@@ -66,12 +63,10 @@ col1, col2 = st.columns([3, 1])
 
 with col1:
 
-    st.markdown(
-        f"""
+    st.markdown(f"""
 # {profile.get('company_name', company_name)}
 **Ticker :** {company_id}
-"""
-    )
+""")
 
     if "sector" in profile.index:
         st.write("**Sector:**", profile["sector"])
@@ -120,35 +115,17 @@ latest = latest.iloc[0]
 c1, c2, c3 = st.columns(3)
 c4, c5, c6 = st.columns(3)
 
-c1.metric(
-    "ROE",
-    f"{latest['return_on_equity_pct']:.2f}%"
-)
+c1.metric("ROE", f"{latest['return_on_equity_pct']:.2f}%")
 
-c2.metric(
-    "ROCE",
-    f"{latest['return_on_capital_employed_pct']:.2f}%"
-)
+c2.metric("ROCE", f"{latest['return_on_capital_employed_pct']:.2f}%")
 
-c3.metric(
-    "Net Profit Margin",
-    f"{latest['net_profit_margin_pct']:.2f}%"
-)
+c3.metric("Net Profit Margin", f"{latest['net_profit_margin_pct']:.2f}%")
 
-c4.metric(
-    "Debt / Equity",
-    f"{latest['debt_to_equity']:.2f}"
-)
+c4.metric("Debt / Equity", f"{latest['debt_to_equity']:.2f}")
 
-c5.metric(
-    "Revenue CAGR",
-    f"{latest['revenue_cagr_5yr']:.2f}%"
-)
+c5.metric("Revenue CAGR", f"{latest['revenue_cagr_5yr']:.2f}%")
 
-c6.metric(
-    "Quality Score",
-    f"{latest['composite_quality_score']:.2f}"
-)
+c6.metric("Quality Score", f"{latest['composite_quality_score']:.2f}")
 
 st.divider()
 
@@ -259,37 +236,19 @@ health1, health2 = st.columns(2)
 
 with health1:
 
-    st.metric(
-        "Interest Coverage",
-        f"{latest['interest_coverage']:.2f}"
-    )
+    st.metric("Interest Coverage", f"{latest['interest_coverage']:.2f}")
 
-    st.metric(
-        "Asset Turnover",
-        f"{latest['asset_turnover']:.2f}"
-    )
+    st.metric("Asset Turnover", f"{latest['asset_turnover']:.2f}")
 
-    st.metric(
-        "Return on Assets",
-        f"{latest['return_on_assets_pct']:.2f}%"
-    )
+    st.metric("Return on Assets", f"{latest['return_on_assets_pct']:.2f}%")
 
 with health2:
 
-    st.metric(
-        "Free Cash Flow",
-        f"{latest['free_cash_flow_cr']:.2f} Cr"
-    )
+    st.metric("Free Cash Flow", f"{latest['free_cash_flow_cr']:.2f} Cr")
 
-    st.metric(
-        "Cash From Operations",
-        f"{latest['cash_from_operations_cr']:.2f} Cr"
-    )
+    st.metric("Cash From Operations", f"{latest['cash_from_operations_cr']:.2f} Cr")
 
-    st.metric(
-        "Net Debt",
-        f"{latest['net_debt']:.2f} Cr"
-    )
+    st.metric("Net Debt", f"{latest['net_debt']:.2f} Cr")
 
 st.divider()
 
@@ -306,7 +265,7 @@ if not pl.empty:
         x="year",
         y="operating_profit",
         markers=True,
-        title="Operating Profit"
+        title="Operating Profit",
     )
 
     fig.update_layout(
@@ -329,12 +288,7 @@ if not pl.empty:
 
     st.subheader("EPS Trend")
 
-    fig = px.bar(
-        pl.sort_values("year"),
-        x="year",
-        y="eps",
-        title="Earnings Per Share"
-    )
+    fig = px.bar(pl.sort_values("year"), x="year", y="eps", title="Earnings Per Share")
 
     fig.update_layout(
         xaxis_title="Year",
@@ -361,7 +315,7 @@ if not pl.empty:
         x="year",
         y="dividend_payout",
         markers=True,
-        title="Dividend Payout Ratio"
+        title="Dividend Payout Ratio",
     )
 
     fig.update_layout(

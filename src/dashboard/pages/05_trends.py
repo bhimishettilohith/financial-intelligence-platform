@@ -1,13 +1,13 @@
-import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+import streamlit as st
 
 from src.dashboard.utils.db import (
-    get_company_names,
-    get_company_id,
-    get_pl,
     get_bs,
     get_cf,
+    get_company_id,
+    get_company_names,
+    get_pl,
 )
 
 # -------------------------------------------------------
@@ -21,9 +21,7 @@ st.set_page_config(
 )
 
 st.title("📈 Trend Analysis")
-st.caption(
-    "Analyze financial trends over the last 10 years with YoY growth."
-)
+st.caption("Analyze financial trends over the last 10 years with YoY growth.")
 
 # -------------------------------------------------------
 # Company Selection
@@ -51,7 +49,6 @@ cf = get_cf(company_id)
 # -------------------------------------------------------
 
 METRICS = {
-
     # Profit & Loss
     "Sales": ("sales", "PL"),
     "Expenses": ("expenses", "PL"),
@@ -65,7 +62,6 @@ METRICS = {
     "Net Profit": ("net_profit", "PL"),
     "EPS": ("eps", "PL"),
     "Dividend Payout": ("dividend_payout", "PL"),
-
     # Balance Sheet
     "Equity Capital": ("equity_capital", "BS"),
     "Reserves": ("reserves", "BS"),
@@ -77,7 +73,6 @@ METRICS = {
     "Investments": ("investments", "BS"),
     "Other Asset": ("other_asset", "BS"),
     "Total Assets": ("total_assets", "BS"),
-
     # Cash Flow
     "Operating Activity": ("operating_activity", "CF"),
     "Investing Activity": ("investing_activity", "CF"),
@@ -105,19 +100,16 @@ if len(selected_metrics) == 0:
 # -------------------------------------------------------
 
 # Merge all statements on year
-financial_df = (
-    pl.merge(
-        bs,
-        on=["company_id", "year"],
-        how="outer",
-        suffixes=("", "_bs"),
-    )
-    .merge(
-        cf,
-        on=["company_id", "year"],
-        how="outer",
-        suffixes=("", "_cf"),
-    )
+financial_df = pl.merge(
+    bs,
+    on=["company_id", "year"],
+    how="outer",
+    suffixes=("", "_bs"),
+).merge(
+    cf,
+    on=["company_id", "year"],
+    how="outer",
+    suffixes=("", "_cf"),
 )
 
 st.write("PL Shape:", pl.shape)
@@ -129,10 +121,7 @@ st.write("Merged Shape:", financial_df.shape)
 st.dataframe(financial_df.head())
 
 # Remove duplicate ID columns created during merge
-financial_df = financial_df.loc[
-    :,
-    ~financial_df.columns.str.startswith("id_")
-]
+financial_df = financial_df.loc[:, ~financial_df.columns.str.startswith("id_")]
 
 financial_df = financial_df.sort_values("year")
 
@@ -179,10 +168,7 @@ for metric in selected_metrics:
 
 st.subheader("Financial Trend")
 
-st.caption(
-    f"Displaying the latest {len(trend_df)} years for "
-    f"{selected_company}."
-)
+st.caption(f"Displaying the latest {len(trend_df)} years for " f"{selected_company}.")
 
 # -------------------------------------------------------
 # Plot Trend Chart
@@ -214,10 +200,7 @@ for i, metric in enumerate(selected_metrics):
                 size=8,
             ),
             hovertemplate=(
-                "<b>%{x}</b><br>"
-                + metric
-                + ": %{y:,.2f}"
-                + "<extra></extra>"
+                "<b>%{x}</b><br>" + metric + ": %{y:,.2f}" + "<extra></extra>"
             ),
         )
     )
@@ -417,13 +400,10 @@ for metric in selected_metrics:
 
     if pd.notna(yoy):
         st.write(
-            f"{icon} **{metric}** {direction} by "
-            f"**{yoy:.2f}%** in the latest year."
+            f"{icon} **{metric}** {direction} by " f"**{yoy:.2f}%** in the latest year."
         )
     else:
-        st.write(
-            f"{icon} **{metric}** has insufficient data for YoY comparison."
-        )
+        st.write(f"{icon} **{metric}** has insufficient data for YoY comparison.")
 
 # -------------------------------------------------------
 # Footer
@@ -431,6 +411,4 @@ for metric in selected_metrics:
 
 st.divider()
 
-st.caption(
-    "Financial Intelligence Platform • Trend Analysis Dashboard"
-)
+st.caption("Financial Intelligence Platform • Trend Analysis Dashboard")

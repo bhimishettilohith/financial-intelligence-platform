@@ -15,8 +15,7 @@ st.set_page_config(
 
 st.title("📈 Nifty 100 Analytics")
 
-st.markdown(
-    """
+st.markdown("""
 Welcome to the **Nifty 100 Analytics Dashboard**.
 
 Use the navigation menu in the left sidebar to explore:
@@ -29,7 +28,6 @@ Use the navigation menu in the left sidebar to explore:
 - 🏭 Sector Analysis
 - 💰 Capital Allocation
 - 📄 Reports
-"""
-)
+""")
 
 st.info("Select a page from the sidebar to begin.")

@@ -1,15 +1,15 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit as st
 
 from src.dashboard.utils.db import (
-    get_company_names,
     get_company_id,
+    get_company_names,
     get_latest_ratios,
-    get_peer_percentiles,
-    get_peer_members,
     get_peer_average,
+    get_peer_members,
+    get_peer_percentiles,
 )
 
 st.set_page_config(
@@ -58,25 +58,13 @@ st.divider()
 
 c1, c2, c3, c4 = st.columns(4)
 
-c1.metric(
-    "ROE",
-    f"{latest['return_on_equity_pct']:.2f}%"
-)
+c1.metric("ROE", f"{latest['return_on_equity_pct']:.2f}%")
 
-c2.metric(
-    "ROCE",
-    f"{latest['return_on_capital_employed_pct']:.2f}%"
-)
+c2.metric("ROCE", f"{latest['return_on_capital_employed_pct']:.2f}%")
 
-c3.metric(
-    "Net Margin",
-    f"{latest['net_profit_margin_pct']:.2f}%"
-)
+c3.metric("Net Margin", f"{latest['net_profit_margin_pct']:.2f}%")
 
-c4.metric(
-    "Debt / Equity",
-    f"{latest['debt_to_equity']:.2f}"
-)
+c4.metric("Debt / Equity", f"{latest['debt_to_equity']:.2f}")
 
 st.divider()
 
@@ -85,15 +73,11 @@ st.subheader("Peer Members")
 benchmark = members[members["is_benchmark"] == 1]
 
 if not benchmark.empty:
-    st.info(
-        f"Benchmark Company : {benchmark.iloc[0]['company_name']}"
-    )
+    st.info(f"Benchmark Company : {benchmark.iloc[0]['company_name']}")
 
 display_members = members.copy()
 
-display_members["Benchmark"] = display_members[
-    "is_benchmark"
-].map(
+display_members["Benchmark"] = display_members["is_benchmark"].map(
     {
         1: "Yes",
         0: "No",
@@ -122,9 +106,7 @@ st.subheader("Company Percentile Rankings")
 latest_year = peer_df.iloc[0]["year"]
 
 latest_percentiles = (
-    peer_df[
-        peer_df["year"] == latest_year
-    ]
+    peer_df[peer_df["year"] == latest_year]
     .copy()
     .sort_values(
         "percentile_rank",
@@ -145,9 +127,7 @@ metric_names = {
     "eps_cagr_5yr": "EPS CAGR",
 }
 
-latest_percentiles["Metric"] = latest_percentiles[
-    "metric"
-].map(metric_names)
+latest_percentiles["Metric"] = latest_percentiles["metric"].map(metric_names)
 
 latest_percentiles.rename(
     columns={
@@ -210,9 +190,7 @@ radar_metrics = [
     "EPS CAGR",
 ]
 
-radar_df = latest_percentiles[
-    latest_percentiles["Metric"].isin(radar_metrics)
-]
+radar_df = latest_percentiles[latest_percentiles["Metric"].isin(radar_metrics)]
 
 
 fig_radar = go.Figure()
@@ -330,9 +308,7 @@ growth_metrics = [
     "EPS CAGR",
 ]
 
-growth_df = comparison[
-    comparison["Metric"].isin(growth_metrics)
-]
+growth_df = comparison[comparison["Metric"].isin(growth_metrics)]
 
 growth = px.bar(
     growth_df,

@@ -1,5 +1,5 @@
-import streamlit as st
 import plotly.express as px
+import streamlit as st
 
 from src.dashboard.utils.db import (
     get_ratios_by_year,
@@ -24,35 +24,17 @@ st.subheader("Key Performance Indicators")
 
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 
-c1.metric(
-    "Average ROE",
-    f"{ratios['return_on_equity_pct'].mean():.2f}%"
-)
+c1.metric("Average ROE", f"{ratios['return_on_equity_pct'].mean():.2f}%")
 
-c2.metric(
-    "Median EPS",
-    f"{ratios['earnings_per_share'].median():.2f}"
-)
+c2.metric("Median EPS", f"{ratios['earnings_per_share'].median():.2f}")
 
-c3.metric(
-    "Median D/E",
-    f"{ratios['debt_to_equity'].median():.2f}"
-)
+c3.metric("Median D/E", f"{ratios['debt_to_equity'].median():.2f}")
 
-c4.metric(
-    "Companies",
-    len(ratios)
-)
+c4.metric("Companies", len(ratios))
 
-c5.metric(
-    "Revenue CAGR",
-    f"{ratios['revenue_cagr_5yr'].median():.2f}%"
-)
+c5.metric("Revenue CAGR", f"{ratios['revenue_cagr_5yr'].median():.2f}%")
 
-c6.metric(
-    "Debt Free",
-    int((ratios["debt_to_equity"] == 0).sum())
-)
+c6.metric("Debt Free", int((ratios["debt_to_equity"] == 0).sum()))
 
 st.divider()
 
@@ -63,9 +45,7 @@ left, right = st.columns([2, 1])
 with left:
 
     sector_summary = (
-        sectors.groupby("broad_sector")
-        .size()
-        .reset_index(name="Companies")
+        sectors.groupby("broad_sector").size().reset_index(name="Companies")
     )
 
     fig = px.pie(
@@ -73,7 +53,7 @@ with left:
         names="broad_sector",
         values="Companies",
         hole=0.55,
-        title="Sector Breakdown"
+        title="Sector Breakdown",
     )
 
     st.plotly_chart(

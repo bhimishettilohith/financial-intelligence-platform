@@ -73,19 +73,12 @@ class RadarChartGenerator:
 
         latest = df.copy()
 
-        latest = latest[
-            latest["year"] != "TTM"
-        ]
+        latest = latest[latest["year"] != "TTM"]
 
-        latest["year_num"] = (
-            latest["year"]
-            .str.extract(r"(\d{4})")
-            .astype(float)
-        )
+        latest["year_num"] = latest["year"].str.extract(r"(\d{4})").astype(float)
 
         latest = (
-            latest
-            .sort_values("year_num")
+            latest.sort_values("year_num")
             .drop_duplicates(
                 subset="company_id",
                 keep="last",
@@ -113,19 +106,13 @@ class RadarChartGenerator:
                 self.df[metric] = 50
                 continue
 
-            self.df[metric] = (
-                (self.df[metric] - minimum)
-                / (maximum - minimum)
-            ) * 100
+            self.df[metric] = ((self.df[metric] - minimum) / (maximum - minimum)) * 100
 
         # Lower Debt/Equity is better
 
         if "debt_to_equity" in self.df.columns:
 
-            self.df["debt_to_equity"] = (
-                100 - self.df["debt_to_equity"]
-            )
-
+            self.df["debt_to_equity"] = 100 - self.df["debt_to_equity"]
 
     def get_peer_average(
         self,
@@ -142,9 +129,7 @@ class RadarChartGenerator:
 
             return self.df[METRICS].mean()
 
-        peers = self.df[
-            self.df["peer_group_name"] == peer_group
-        ]
+        peers = self.df[self.df["peer_group_name"] == peer_group]
 
         if peers.empty:
 
@@ -175,19 +160,11 @@ class RadarChartGenerator:
 
         peer_group = company_row["peer_group_name"]
 
-        company_values = (
-            company_row[METRICS]
-            .fillna(0)
-            .tolist()
-        )
+        company_values = company_row[METRICS].fillna(0).tolist()
 
         company_values += company_values[:1]
 
-        peer_values = (
-            self.get_peer_average(peer_group)
-            .fillna(0)
-            .tolist()
-        )
+        peer_values = self.get_peer_average(peer_group).fillna(0).tolist()
 
         peer_values += peer_values[:1]
 
@@ -200,15 +177,11 @@ class RadarChartGenerator:
             polar=True,
         )
 
-        ax.set_theta_offset(
-            np.pi / 2
-        )
+        ax.set_theta_offset(np.pi / 2)
 
         ax.set_theta_direction(-1)
 
-        ax.set_xticks(
-            angles[:-1]
-        )
+        ax.set_xticks(angles[:-1])
 
         ax.set_xticklabels(
             LABELS,
@@ -233,11 +206,7 @@ class RadarChartGenerator:
             alpha=0.25,
         )
 
-        label = (
-            peer_group
-            if pd.notna(peer_group)
-            else "Nifty 100 Avg"
-        )
+        label = peer_group if pd.notna(peer_group) else "Nifty 100 Avg"
 
         ax.plot(
             angles,
@@ -256,8 +225,7 @@ class RadarChartGenerator:
             f"{company} Radar Chart",
             fontsize=14,
             pad=20,
-        )            
-
+        )
 
     def save_chart(
         self,
@@ -271,10 +239,7 @@ class RadarChartGenerator:
 
         company = company_row["company_id"]
 
-        output_file = (
-            OUTPUT_DIR
-            / f"{company}_radar.png"
-        )
+        output_file = OUTPUT_DIR / f"{company}_radar.png"
 
         plt.savefig(
             output_file,
@@ -302,19 +267,11 @@ class RadarChartGenerator:
 
             except Exception as e:
 
-                print(
-                    f"Failed for "
-                    f"{row['company_id']}: {e}"
-                )
+                print(f"Failed for " f"{row['company_id']}: {e}")
 
-        print(
-            f"\nGenerated "
-            f"{generated} radar charts."
-        )
+        print(f"\nGenerated " f"{generated} radar charts.")
 
-        print(
-            f"Saved to: {OUTPUT_DIR}"
-        )
+        print(f"Saved to: {OUTPUT_DIR}")
 
     def close(self):
 

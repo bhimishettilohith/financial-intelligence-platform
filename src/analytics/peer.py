@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sqlite3
 
-import numpy as np
 import pandas as pd
 
 DB_PATH = "data/nifty100.db"
@@ -11,7 +10,7 @@ METRICS = {
     "return_on_equity_pct": True,
     "return_on_capital_employed_pct": True,
     "net_profit_margin_pct": True,
-    "debt_to_equity": False,          # Lower is better
+    "debt_to_equity": False,  # Lower is better
     "free_cash_flow_cr": True,
     "pat_cagr_5yr": True,
     "revenue_cagr_5yr": True,
@@ -45,7 +44,6 @@ class PeerPercentileEngine:
             "SELECT * FROM financial_ratios",
             self.conn,
         )
-
 
     @staticmethod
     def percentile_rank(
@@ -95,21 +93,14 @@ class PeerPercentileEngine:
 
         df = self.prepare_dataframe()
 
-        missing = df[
-            df["peer_group_name"].isna()
-        ]["company_id"].unique()
+        missing = df[df["peer_group_name"].isna()]["company_id"].unique()
 
         if len(missing):
 
-            print(
-                "\nCompanies without peer group:"
-            )
+            print("\nCompanies without peer group:")
 
             for company in sorted(missing):
-                print(
-                    f"{company} -> "
-                    "No peer group assigned"
-                )
+                print(f"{company} -> " "No peer group assigned")
 
         results = []
 
@@ -146,7 +137,6 @@ class PeerPercentileEngine:
                     higher_is_better,
                 )
 
-
                 for idx, row in group.iterrows():
 
                     value = row[metric]
@@ -181,11 +171,9 @@ class PeerPercentileEngine:
 
         cursor = self.conn.cursor()
 
-        cursor.execute(
-            """
+        cursor.execute("""
             DELETE FROM peer_percentiles
-            """
-        )
+            """)
 
         self.conn.commit()
 
@@ -198,11 +186,7 @@ class PeerPercentileEngine:
 
         self.conn.commit()
 
-        print(
-            f"\nInserted "
-            f"{len(percentile_df)} rows "
-            f"into peer_percentiles."
-        )
+        print(f"\nInserted " f"{len(percentile_df)} rows " f"into peer_percentiles.")
 
     def run(self) -> None:
 
@@ -214,9 +198,7 @@ class PeerPercentileEngine:
 
         if percentile_df.empty:
 
-            print(
-                "\nNo percentile rankings generated."
-            )
+            print("\nNo percentile rankings generated.")
 
             return
 

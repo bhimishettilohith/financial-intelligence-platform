@@ -47,8 +47,7 @@ def sidebar():
 
     st.sidebar.success("Sprint 4 Dashboard")
 
-    st.sidebar.markdown(
-        """
+    st.sidebar.markdown("""
 Financial Intelligence Platform
 
 Built with:
@@ -57,7 +56,6 @@ Built with:
 - SQLite
 - Plotly
 - Pandas
-"""
-    )
+""")
 
     st.sidebar.markdown("---")

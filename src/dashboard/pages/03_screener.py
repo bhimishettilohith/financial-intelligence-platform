@@ -1,8 +1,7 @@
 import streamlit as st
-import pandas as pd
 
 from src.dashboard.utils.db import (
-        get_all_latest_ratios,
+    get_all_latest_ratios,
     get_sectors,
 )
 
@@ -22,6 +21,7 @@ st.caption("Filter companies using financial metrics.")
 # -------------------------------------------------------
 # Load Data
 # -------------------------------------------------------
+
 
 @st.cache_data
 def load_data():
@@ -62,7 +62,6 @@ PRESETS = {
         "icr": 3.0,
         "quality": 50,
     },
-
     "Quality": {
         "roe": 20.0,
         "de": 0.50,
@@ -73,7 +72,6 @@ PRESETS = {
         "icr": 5.0,
         "quality": 75,
     },
-
     "Value": {
         "roe": 12.0,
         "de": 1.00,
@@ -84,7 +82,6 @@ PRESETS = {
         "icr": 2.0,
         "quality": 40,
     },
-
     "Growth": {
         "roe": 15.0,
         "de": 1.50,
@@ -95,7 +92,6 @@ PRESETS = {
         "icr": 3.0,
         "quality": 60,
     },
-
     "Dividend": {
         "roe": 10.0,
         "de": 1.00,
@@ -106,7 +102,6 @@ PRESETS = {
         "icr": 2.0,
         "quality": 40,
     },
-
     "Debt-Free": {
         "roe": 10.0,
         "de": 0.20,
@@ -117,7 +112,6 @@ PRESETS = {
         "icr": 3.0,
         "quality": 50,
     },
-
     "Turnaround": {
         "roe": 5.0,
         "de": 2.00,
@@ -215,12 +209,7 @@ quality_min = st.sidebar.slider(
 # Sector Filter
 # -------------------------------------------------------
 
-sector_options = ["All"] + sorted(
-    df["broad_sector"]
-    .dropna()
-    .unique()
-    .tolist()
-)
+sector_options = ["All"] + sorted(df["broad_sector"].dropna().unique().tolist())
 
 selected_sector = st.sidebar.selectbox(
     "Sector",
@@ -232,10 +221,7 @@ selected_sector = st.sidebar.selectbox(
 # -------------------------------------------------------
 
 market_cap_options = ["All"] + sorted(
-    df["market_cap_category"]
-    .dropna()
-    .unique()
-    .tolist()
+    df["market_cap_category"].dropna().unique().tolist()
 )
 
 selected_market_cap = st.sidebar.selectbox(
@@ -266,49 +252,29 @@ st.sidebar.caption(
 filtered = df.copy()
 
 # Financial Filters
-filtered = filtered[
-    filtered["return_on_equity_pct"].fillna(-999) >= roe_min
-]
+filtered = filtered[filtered["return_on_equity_pct"].fillna(-999) >= roe_min]
 
-filtered = filtered[
-    filtered["debt_to_equity"].fillna(999) <= de_max
-]
+filtered = filtered[filtered["debt_to_equity"].fillna(999) <= de_max]
 
-filtered = filtered[
-    filtered["free_cash_flow_cr"].fillna(-999999) >= fcf_min
-]
+filtered = filtered[filtered["free_cash_flow_cr"].fillna(-999999) >= fcf_min]
 
-filtered = filtered[
-    filtered["revenue_cagr_5yr"].fillna(-999) >= rev_cagr
-]
+filtered = filtered[filtered["revenue_cagr_5yr"].fillna(-999) >= rev_cagr]
 
-filtered = filtered[
-    filtered["pat_cagr_5yr"].fillna(-999) >= pat_cagr
-]
+filtered = filtered[filtered["pat_cagr_5yr"].fillna(-999) >= pat_cagr]
 
-filtered = filtered[
-    filtered["operating_profit_margin_pct"].fillna(-999) >= opm_min
-]
+filtered = filtered[filtered["operating_profit_margin_pct"].fillna(-999) >= opm_min]
 
-filtered = filtered[
-    filtered["interest_coverage"].fillna(-999) >= icr_min
-]
+filtered = filtered[filtered["interest_coverage"].fillna(-999) >= icr_min]
 
-filtered = filtered[
-    filtered["composite_quality_score"].fillna(-999) >= quality_min
-]
+filtered = filtered[filtered["composite_quality_score"].fillna(-999) >= quality_min]
 
 # Sector Filter
 if selected_sector != "All":
-    filtered = filtered[
-        filtered["broad_sector"] == selected_sector
-    ]
+    filtered = filtered[filtered["broad_sector"] == selected_sector]
 
 # Market Cap Filter
 if selected_market_cap != "All":
-    filtered = filtered[
-        filtered["market_cap_category"] == selected_market_cap
-    ]
+    filtered = filtered[filtered["market_cap_category"] == selected_market_cap]
 
 # -------------------------------------------------------
 # Sort Results
@@ -329,9 +295,7 @@ filtered = filtered.sort_values(
 
 st.subheader("📋 Screening Results")
 
-st.info(
-    f"Found **{len(filtered)}** companies matching the selected filters."
-)
+st.info(f"Found **{len(filtered)}** companies matching the selected filters.")
 
 # -------------------------------------------------------
 # Display Table
@@ -419,20 +383,11 @@ kpi1.metric(
     len(display_df),
 )
 
-kpi2.metric(
-    "Average ROE",
-    f"{display_df['ROE %'].mean():.2f}%"
-)
+kpi2.metric("Average ROE", f"{display_df['ROE %'].mean():.2f}%")
 
-kpi3.metric(
-    "Average Quality",
-    f"{display_df['Quality Score'].mean():.2f}"
-)
+kpi3.metric("Average Quality", f"{display_df['Quality Score'].mean():.2f}")
 
-kpi4.metric(
-    "Average Revenue CAGR",
-    f"{display_df['Revenue CAGR %'].mean():.2f}%"
-)
+kpi4.metric("Average Revenue CAGR", f"{display_df['Revenue CAGR %'].mean():.2f}%")
 
 # -------------------------------------------------------
 # Top Companies
@@ -487,11 +442,7 @@ st.divider()
 st.subheader("⭐ Quality Score Distribution")
 
 quality_dist = (
-    filtered["composite_quality_score"]
-    .dropna()
-    .round()
-    .value_counts()
-    .sort_index()
+    filtered["composite_quality_score"].dropna().round().value_counts().sort_index()
 )
 
 if not quality_dist.empty:
@@ -510,13 +461,9 @@ st.divider()
 st.subheader("📈 Average ROE by Sector")
 
 sector_roe = (
-    filtered.groupby("broad_sector")[
-        "return_on_equity_pct"
-    ]
+    filtered.groupby("broad_sector")["return_on_equity_pct"]
     .mean()
-    .sort_values(
-        ascending=False
-    )
+    .sort_values(ascending=False)
 )
 
 if not sector_roe.empty:
@@ -534,8 +481,7 @@ st.divider()
 
 with st.expander("ℹ️ About this Screener"):
 
-    st.markdown(
-        """
+    st.markdown("""
 ### Metrics Used
 
 - Return on Equity (ROE)
@@ -553,8 +499,7 @@ with st.expander("ℹ️ About this Screener"):
 - P/B Ratio is not available in the current database.
 - Dividend Yield is not available in the current database.
 - Screening is performed using the latest available financial ratios.
-        """
-    )
+        """)
 
 # -------------------------------------------------------
 # Footer
@@ -562,7 +507,4 @@ with st.expander("ℹ️ About this Screener"):
 
 st.divider()
 
-st.caption(
-    "Financial Intelligence Platform • Sprint 2 • Stock Screener Dashboard"
-)
-
+st.caption("Financial Intelligence Platform • Sprint 2 • Stock Screener Dashboard")

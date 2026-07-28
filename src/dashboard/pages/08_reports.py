@@ -1,11 +1,10 @@
-import requests
-import pandas as pd
-import streamlit as st
 import plotly.express as px
+import requests
+import streamlit as st
 
 from src.dashboard.utils.db import (
-    get_company_names,
     get_company_id,
+    get_company_names,
     get_documents,
 )
 
@@ -20,9 +19,7 @@ st.set_page_config(
 )
 
 st.title("📄 Annual Reports")
-st.caption(
-    "Browse company annual reports directly from BSE."
-)
+st.caption("Browse company annual reports directly from BSE.")
 
 # ==========================================================
 # Company Selection
@@ -40,6 +37,7 @@ reports = get_documents(company_id)
 # ==========================================================
 # URL Availability Checker
 # ==========================================================
+
 
 @st.cache_data(ttl=600)
 def check_report(url):
@@ -74,6 +72,7 @@ def check_report(url):
 
         st.error(e)
         return False
+
 
 # ==========================================================
 # Dashboard Summary
@@ -130,9 +129,7 @@ else:
 
         with col1:
 
-            st.markdown(
-                f"**{year}**"
-            )
+            st.markdown(f"**{year}**")
 
         with col2:
 
@@ -182,9 +179,7 @@ else:
 
             else:
 
-                st.caption(
-                    "No downloadable report available."
-                )
+                st.caption("No downloadable report available.")
 
         st.divider()
 
@@ -199,9 +194,7 @@ if not reports.empty:
 
     report_status = reports.copy()
 
-    report_status["available"] = report_status[
-        "annual_report"
-    ].apply(check_report)
+    report_status["available"] = report_status["annual_report"].apply(check_report)
 
     available_count = int(report_status["available"].sum())
     unavailable_count = len(report_status) - available_count
@@ -277,8 +270,7 @@ if not reports.empty:
 
 with st.expander("ℹ️ About Annual Reports"):
 
-    st.markdown(
-        """
+    st.markdown("""
 Annual reports are retrieved from the **BSE (Bombay Stock Exchange)**.
 
 This page allows you to:
@@ -290,11 +282,8 @@ This page allows you to:
 
 Unavailable reports are detected automatically when the BSE URL
 returns an HTTP **404 Not Found** response.
-"""
-    )
+""")
 
 st.divider()
 
-st.caption(
-    "Financial Intelligence Platform • Sprint 2 • Annual Reports Dashboard"
-)
+st.caption("Financial Intelligence Platform • Sprint 2 • Annual Reports Dashboard")

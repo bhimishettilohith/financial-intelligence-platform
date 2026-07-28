@@ -46,10 +46,7 @@ VALIDATION_FILE = OUTPUT_DIR / "cagr_validation.csv"
 # Logging
 # ---------------------------------------------------------------------
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s | %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +78,7 @@ def load_analysis() -> pd.DataFrame:
 
     logger.info("Loading analysis.xlsx")
 
-    return pd.read_excel(
-        ANALYSIS_FILE,
-        header=1
-    )
+    return pd.read_excel(ANALYSIS_FILE, header=1)
 
 
 def load_profit_loss() -> pd.DataFrame:
@@ -94,10 +88,7 @@ def load_profit_loss() -> pd.DataFrame:
 
     logger.info("Loading profitandloss.xlsx")
 
-    return pd.read_excel(
-        PL_FILE,
-        header=1
-    )
+    return pd.read_excel(PL_FILE, header=1)
 
 
 def load_stock_prices() -> pd.DataFrame:
@@ -112,6 +103,7 @@ def load_stock_prices() -> pd.DataFrame:
     df["date"] = pd.to_datetime(df["date"])
 
     return df
+
 
 # ---------------------------------------------------------------------
 # Parsing Helpers
@@ -149,6 +141,7 @@ def parse_metric_text(text):
 
     return period, value
 
+
 def parse_analysis(df):
     """
     Parse all target fields.
@@ -169,9 +162,7 @@ def parse_analysis(df):
 
         for field in TARGET_FIELDS:
 
-            period, value = parse_metric_text(
-                row[field]
-            )
+            period, value = parse_metric_text(row[field])
 
             if period is None:
 
@@ -201,6 +192,7 @@ def parse_analysis(df):
 
     return parsed_df, failures_df
 
+
 # ---------------------------------------------------------------------
 # Validation Helpers
 # ---------------------------------------------------------------------
@@ -221,11 +213,7 @@ def compute_profit_cagr(
     company_df = company_df.copy()
 
     # Extract 4-digit year and remove rows like "TTM"
-    company_df["year"] = (
-        company_df["year"]
-        .astype(str)
-        .str.extract(r"(\d{4})")[0]
-    )
+    company_df["year"] = company_df["year"].astype(str).str.extract(r"(\d{4})")[0]
 
     company_df = company_df.dropna(subset=["year"])
 
@@ -238,9 +226,7 @@ def compute_profit_cagr(
     # Find the closest record at least 'years' years older
     target_year = latest["year"] - years
 
-    historical = company_df[
-        company_df["year"] <= target_year
-    ]
+    historical = company_df[company_df["year"] <= target_year]
 
     if historical.empty:
         return None, "INSUFFICIENT_DATA"
@@ -273,9 +259,7 @@ def compute_stock_price_cagr(
     Compute stock CAGR using adjusted close.
     """
 
-    df = stock_df[
-        stock_df["company_id"] == company_id
-    ].copy()
+    df = stock_df[stock_df["company_id"] == company_id].copy()
 
     if df.empty:
         return None, "NO_PRICE_DATA"
@@ -284,13 +268,9 @@ def compute_stock_price_cagr(
 
     latest = df.iloc[-1]
 
-    target_date = latest["date"] - pd.DateOffset(
-        years=years
-    )
+    target_date = latest["date"] - pd.DateOffset(years=years)
 
-    historical = df[
-        df["date"] <= target_date
-    ]
+    historical = df[df["date"] <= target_date]
 
     if historical.empty:
         return None, "INSUFFICIENT_DATA"
@@ -354,9 +334,7 @@ def cross_validate(
         if metric == "compounded_sales_growth":
 
             computed, status = compute_profit_cagr(
-                profit_loss_df[
-                    profit_loss_df["company_id"] == company_id
-                ],
+                profit_loss_df[profit_loss_df["company_id"] == company_id],
                 "sales",
                 years,
             )
@@ -364,9 +342,7 @@ def cross_validate(
         elif metric == "compounded_profit_growth":
 
             computed, status = compute_profit_cagr(
-                profit_loss_df[
-                    profit_loss_df["company_id"] == company_id
-                ],
+                profit_loss_df[profit_loss_df["company_id"] == company_id],
                 "net_profit",
                 years,
             )
@@ -385,10 +361,7 @@ def cross_validate(
 
         difference = None
 
-        if (
-            computed is not None
-            and status == "OK"
-        ):
+        if computed is not None and status == "OK":
             difference = round(
                 abs(parsed_value - computed),
                 2,
@@ -467,9 +440,7 @@ def main():
 
     stock_df = load_stock_prices()
 
-    parsed_df, failures_df = parse_analysis(
-        analysis_df
-    )
+    parsed_df, failures_df = parse_analysis(analysis_df)
 
     validation_df = cross_validate(
         parsed_df,
@@ -503,5 +474,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

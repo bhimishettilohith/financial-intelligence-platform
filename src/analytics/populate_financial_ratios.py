@@ -3,35 +3,33 @@ Populate Computed Financial Ratios
 Sprint 2 - Day 12
 """
 
-import sqlite3
-import pandas as pd
-import numpy as np
 import os
+import sqlite3
+
+import pandas as pd
 
 EDGE_CASE_LOG = "output/ratio_edge_cases.log"
 
+from src.analytics.cagr import calculate_cagr
+from src.analytics.cashflow_kpis import (
+    calculate_capex_intensity,
+    calculate_cfo_quality_score,
+    calculate_fcf_conversion,
+    calculate_free_cash_flow,
+)
 from src.analytics.ratios import (
-    calculate_net_profit_margin,
-    calculate_operating_profit_margin,
-    calculate_roe,
-    calculate_roce,
-    calculate_roa,
+    calculate_asset_turnover,
     calculate_debt_to_equity,
     calculate_high_leverage_flag,
-    calculate_interest_coverage,
     calculate_icr_label,
     calculate_icr_warning_flag,
+    calculate_interest_coverage,
     calculate_net_debt,
-    calculate_asset_turnover
-)
-
-from src.analytics.cagr import calculate_cagr
-
-from src.analytics.cashflow_kpis import (
-    calculate_free_cash_flow,
-    calculate_cfo_quality_score,
-    calculate_capex_intensity,
-    calculate_fcf_conversion
+    calculate_net_profit_margin,
+    calculate_operating_profit_margin,
+    calculate_roa,
+    calculate_roce,
+    calculate_roe,
 )
 
 DB_PATH = "data/nifty100.db"
@@ -60,30 +58,15 @@ def main():
     # Load tables
     # ------------------------------------------
 
-    companies = pd.read_sql(
-        "SELECT * FROM companies",
-        conn
-    )
+    companies = pd.read_sql("SELECT * FROM companies", conn)
 
-    profitandloss = pd.read_sql(
-        "SELECT * FROM profitandloss",
-        conn
-    )
+    profitandloss = pd.read_sql("SELECT * FROM profitandloss", conn)
 
-    balancesheet = pd.read_sql(
-        "SELECT * FROM balancesheet",
-        conn
-    )
+    balancesheet = pd.read_sql("SELECT * FROM balancesheet", conn)
 
-    cashflow = pd.read_sql(
-        "SELECT * FROM cashflow",
-        conn
-    )
+    cashflow = pd.read_sql("SELECT * FROM cashflow", conn)
 
-    sectors = pd.read_sql(
-        "SELECT * FROM sectors",
-        conn
-    )
+    sectors = pd.read_sql("SELECT * FROM sectors", conn)
 
     print("\nTables Loaded")
 
@@ -97,61 +80,27 @@ def main():
     # Remove duplicate company-year rows
     # ------------------------------------------
 
-    balancesheet = balancesheet.drop_duplicates(
-        subset=["company_id", "year"]
-    )
+    balancesheet = balancesheet.drop_duplicates(subset=["company_id", "year"])
 
-    cashflow = cashflow.drop_duplicates(
-        subset=["company_id", "year"]
-    )
+    cashflow = cashflow.drop_duplicates(subset=["company_id", "year"])
 
     # ------------------------------------------
     # Merge tables
     # ------------------------------------------
 
     merged = (
-
-        profitandloss
-
-        .merge(
-            balancesheet,
-            on=[
-                "company_id",
-                "year"
-            ],
-            how="left",
-            suffixes=(
-                "_pl",
-                "_bs"
-            )
+        profitandloss.merge(
+            balancesheet, on=["company_id", "year"], how="left", suffixes=("_pl", "_bs")
         )
-
-        .merge(
-            cashflow,
-            on=[
-                "company_id",
-                "year"
-            ],
-            how="left"
-        )
-
+        .merge(cashflow, on=["company_id", "year"], how="left")
         .merge(
             companies,
             left_on="company_id",
             right_on="id",
             how="left",
-            suffixes=(
-                "",
-                "_company"
-            )
+            suffixes=("", "_company"),
         )
-
-        .merge(
-            sectors,
-            on="company_id",
-            how="left"
-        )
-
+        .merge(sectors, on="company_id", how="left")
     )
 
     print("\nMerged Rows :", len(merged))
@@ -160,12 +109,7 @@ def main():
     # Sort company history
     # ------------------------------------------
 
-    merged = merged.sort_values(
-        [
-            "company_id",
-            "year"
-        ]
-    )
+    merged = merged.sort_values(["company_id", "year"])
 
     results = []
 
@@ -175,9 +119,9 @@ def main():
 
     os.makedirs("output", exist_ok=True)
 
-    with open(EDGE_CASE_LOG, "w") as log:   
-            log.write("Financial Ratio Edge Case Log\n")
-            log.write("=" * 60 + "\n\n")
+    with open(EDGE_CASE_LOG, "w") as log:
+        log.write("Financial Ratio Edge Case Log\n")
+        log.write("=" * 60 + "\n\n")
 
     print("\nComputing Financial Ratios...\n")
 
@@ -227,54 +171,36 @@ def main():
             # Day 08
             # --------------------------------
 
-            npm = calculate_net_profit_margin(
-                net_profit,
-                sales
-            )
+            npm = calculate_net_profit_margin(net_profit, sales)
 
-            opm = calculate_operating_profit_margin(
-                operating_profit,
-                sales
-            )
+            opm = calculate_operating_profit_margin(operating_profit, sales)
 
-            roe = calculate_roe(
-                net_profit,
-                equity,
-                reserves
-            )
+            roe = calculate_roe(net_profit, equity, reserves)
             # ------------------------------------------
             # ROE Validation
             # ------------------------------------------
 
-            source_roe = clean(row.get("roe_percentage"))   
+            source_roe = clean(row.get("roe_percentage"))
 
-            if (
-                    roe is not None
-                    and source_roe is not None
-                ):
-                    difference = abs(roe - source_roe)
+            if roe is not None and source_roe is not None:
+                difference = abs(roe - source_roe)
 
-                    if difference > 5:
+                if difference > 5:
 
-                        with open(EDGE_CASE_LOG, "a") as log:
+                    with open(EDGE_CASE_LOG, "a") as log:
 
-                            log.write(
-                        f"ROE | "
-                        f"{row['company_id']} | "
-                        f"{row['year']} | "
-                        f"Computed={roe:.2f} | "
-                        f"Source={source_roe:.2f} | "
-                        f"Difference={difference:.2f} | "
-                        f"Category=DATA_SOURCE_ISSUE\n"
-                )
-                            
+                        log.write(
+                            f"ROE | "
+                            f"{row['company_id']} | "
+                            f"{row['year']} | "
+                            f"Computed={roe:.2f} | "
+                            f"Source={source_roe:.2f} | "
+                            f"Difference={difference:.2f} | "
+                            f"Category=DATA_SOURCE_ISSUE\n"
+                        )
 
             roce = calculate_roce(
-                operating_profit,
-                other_income,
-                equity,
-                reserves,
-                borrowings
+                operating_profit, other_income, equity, reserves, borrowings
             )
 
             # ------------------------------------------
@@ -283,102 +209,68 @@ def main():
 
             source_roce = clean(row.get("roce_percentage"))
 
-            is_financial_company = (
-              row["broad_sector"] == "Financials"   
-            )
-
+            is_financial_company = row["broad_sector"] == "Financials"
 
             if (
-                    not is_financial_company
-                    and roce is not None
-                    and source_roce is not None
+                not is_financial_company
+                and roce is not None
+                and source_roce is not None
             ):
                 difference = abs(roce - source_roce)
 
                 if difference > 5:
 
-                  with open(EDGE_CASE_LOG, "a") as log:
+                    with open(EDGE_CASE_LOG, "a") as log:
 
-                     log.write(
-                         f"ROCE | "
-                         f"{row['company_id']} | "
-                        f"{row['year']} | "
-                        f"Computed={roce:.2f} | "
-                        f"Source={source_roce:.2f} | "
-                        f"Difference={difference:.2f} | "
-                        f"Category=FORMULA_DISCREPANCY\n"
-            )
-            
+                        log.write(
+                            f"ROCE | "
+                            f"{row['company_id']} | "
+                            f"{row['year']} | "
+                            f"Computed={roce:.2f} | "
+                            f"Source={source_roce:.2f} | "
+                            f"Difference={difference:.2f} | "
+                            f"Category=FORMULA_DISCREPANCY\n"
+                        )
 
-            
-
-            roa = calculate_roa(
-                net_profit,
-                total_assets
-            )
+            roa = calculate_roa(net_profit, total_assets)
 
             # --------------------------------
             # Day 09
             # --------------------------------
 
-            debt_to_equity = calculate_debt_to_equity(
-                borrowings,
-                equity,
-                reserves
-            )
+            debt_to_equity = calculate_debt_to_equity(borrowings, equity, reserves)
 
             high_leverage = calculate_high_leverage_flag(
-                debt_to_equity,
-                row["broad_sector"]
+                debt_to_equity, row["broad_sector"]
             )
 
             interest_coverage = calculate_interest_coverage(
-                operating_profit,
-                other_income,
-                interest
+                operating_profit, other_income, interest
             )
 
-            icr_label = calculate_icr_label(
-                interest_coverage
-            )
+            icr_label = calculate_icr_label(interest_coverage)
 
-            icr_warning = calculate_icr_warning_flag(
-                interest_coverage
-            )
+            icr_warning = calculate_icr_warning_flag(interest_coverage)
 
-            net_debt = calculate_net_debt(
-                borrowings,
-                investments
-            )
+            net_debt = calculate_net_debt(borrowings, investments)
 
-            asset_turnover = calculate_asset_turnover(
-                sales,
-                total_assets
-            )
+            asset_turnover = calculate_asset_turnover(sales, total_assets)
 
             # --------------------------------
             # Day 11
             # --------------------------------
 
             free_cash_flow = calculate_free_cash_flow(
-                operating_activity,
-                investing_activity
+                operating_activity, investing_activity
             )
 
             cfo_score, cfo_label = calculate_cfo_quality_score(
-                operating_activity,
-                net_profit
+                operating_activity, net_profit
             )
 
-            capex, capex_label = calculate_capex_intensity(
-                investing_activity,
-                sales
-            )
+            capex, capex_label = calculate_capex_intensity(investing_activity, sales)
 
-            fcf_conversion = calculate_fcf_conversion(
-                free_cash_flow,
-                operating_profit
-            )
+            fcf_conversion = calculate_fcf_conversion(free_cash_flow, operating_profit)
 
             # --------------------------------
             # Day 10 CAGR
@@ -396,21 +288,15 @@ def main():
             if idx >= 5:
 
                 revenue_cagr, revenue_flag = calculate_cagr(
-                    company_df.iloc[idx-5]["sales"],
-                    sales,
-                    5
+                    company_df.iloc[idx - 5]["sales"], sales, 5
                 )
 
                 pat_cagr, pat_flag = calculate_cagr(
-                    company_df.iloc[idx-5]["net_profit"],
-                    net_profit,
-                    5
+                    company_df.iloc[idx - 5]["net_profit"], net_profit, 5
                 )
 
                 eps_cagr, eps_flag = calculate_cagr(
-                    company_df.iloc[idx-5]["eps"],
-                    eps,
-                    5
+                    company_df.iloc[idx - 5]["eps"], eps, 5
                 )
 
             # --------------------------------
@@ -434,58 +320,44 @@ def main():
             if revenue_cagr is not None and revenue_cagr > 10:
                 score += 10
 
-            results.append({
+            results.append(
+                {
+                    "company_id": company_id,
+                    "year": row["year"],
+                    "net_profit_margin_pct": npm,
+                    "operating_profit_margin_pct": opm,
+                    "return_on_equity_pct": roe,
+                    "return_on_capital_employed_pct": roce,
+                    "return_on_assets_pct": roa,
+                    "debt_to_equity": debt_to_equity,
+                    "high_leverage_flag": high_leverage,
+                    "interest_coverage": interest_coverage,
+                    "icr_label": icr_label,
+                    "icr_warning_flag": icr_warning,
+                    "net_debt": net_debt,
+                    "asset_turnover": asset_turnover,
+                    "free_cash_flow_cr": free_cash_flow,
+                    "cfo_quality_score": cfo_score,
+                    "cfo_quality_label": cfo_label,
+                    "capex_intensity_pct": capex,
+                    "capex_label": capex_label,
+                    "fcf_conversion_pct": fcf_conversion,
+                    "earnings_per_share": eps,
+                    "book_value_per_share": row["book_value"],
+                    "dividend_payout_ratio_pct": row["dividend_payout"],
+                    "total_debt_cr": borrowings,
+                    "cash_from_operations_cr": operating_activity,
+                    "revenue_cagr_5yr": revenue_cagr,
+                    "revenue_cagr_flag": revenue_flag,
+                    "pat_cagr_5yr": pat_cagr,
+                    "pat_cagr_flag": pat_flag,
+                    "eps_cagr_5yr": eps_cagr,
+                    "eps_cagr_flag": eps_flag,
+                    "composite_quality_score": score,
+                }
+            )
 
-                "company_id": company_id,
-                "year": row["year"],
-
-                "net_profit_margin_pct": npm,
-                "operating_profit_margin_pct": opm,
-
-                "return_on_equity_pct": roe,
-                "return_on_capital_employed_pct": roce,
-                "return_on_assets_pct": roa,
-
-                "debt_to_equity": debt_to_equity,
-                "high_leverage_flag": high_leverage,
-
-                "interest_coverage": interest_coverage,
-                "icr_label": icr_label,
-                "icr_warning_flag": icr_warning,
-
-                "net_debt": net_debt,
-                "asset_turnover": asset_turnover,
-
-                "free_cash_flow_cr": free_cash_flow,
-                "cfo_quality_score": cfo_score,
-                "cfo_quality_label": cfo_label,
-
-                "capex_intensity_pct": capex,
-                "capex_label": capex_label,
-
-                "fcf_conversion_pct": fcf_conversion,
-
-                "earnings_per_share": eps,
-                "book_value_per_share": row["book_value"],
-                "dividend_payout_ratio_pct": row["dividend_payout"],
-                "total_debt_cr": borrowings,
-                "cash_from_operations_cr": operating_activity,
-
-                "revenue_cagr_5yr": revenue_cagr,
-                "revenue_cagr_flag": revenue_flag,
-
-                "pat_cagr_5yr": pat_cagr,
-                "pat_cagr_flag": pat_flag,
-
-                "eps_cagr_5yr": eps_cagr,
-                "eps_cagr_flag": eps_flag,
-
-                "composite_quality_score": score
-
-            })
-
-
-                # ==========================================================
+            # ==========================================================
     # Create Computed DataFrame
     # ==========================================================
 
@@ -500,12 +372,7 @@ def main():
 
     print("\nWriting computed ratios to SQLite...")
 
-    computed_df.to_sql(
-         "financial_ratios",
-        conn,
-        if_exists="replace",
-        index=False
-    )
+    computed_df.to_sql("financial_ratios", conn, if_exists="replace", index=False)
 
     conn.commit()
 
@@ -513,12 +380,10 @@ def main():
     # Verification
     # ==========================================================
 
-    row_count = conn.execute(
-        """
+    row_count = conn.execute("""
         SELECT COUNT(*)
         FROM computed_financial_ratios
-        """
-    ).fetchone()[0]
+        """).fetchone()[0]
 
     print("\nVerification")
     print("-" * 40)
@@ -533,7 +398,6 @@ def main():
     print("\nSample Records\n")
 
     print(
-
         pd.read_sql(
             """
             SELECT
@@ -546,9 +410,8 @@ def main():
             FROM computed_financial_ratios
             LIMIT 10
             """,
-            conn
+            conn,
         )
-
     )
 
     print("\nRatio Edge Case Log Generated")
@@ -559,6 +422,7 @@ def main():
     print("\n" + "=" * 60)
     print("Day 13 Completed Successfully")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

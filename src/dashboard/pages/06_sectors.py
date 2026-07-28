@@ -1,13 +1,12 @@
-import streamlit as st
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 from src.dashboard.utils.db import (
-    get_sector_summary,
-    get_sectors,
-    get_companies_by_sector,
     get_all_latest_ratios,
     get_pl,
+    get_sector_summary,
+    get_sectors,
 )
 
 st.set_page_config(
@@ -17,13 +16,12 @@ st.set_page_config(
 )
 
 st.title("🏭 Sector Analysis Dashboard")
-st.caption(
-    "Analyze sectors using profitability, revenue and market-cap insights."
-)
+st.caption("Analyze sectors using profitability, revenue and market-cap insights.")
 
 # ==========================================================
 # Cached Data Loaders
 # ==========================================================
+
 
 @st.cache_data
 def load_sector_summary():
@@ -48,9 +46,7 @@ latest_ratios = load_latest_ratios()
 # Sidebar
 # ==========================================================
 
-available_sectors = sorted(
-    sector_summary["broad_sector"].dropna().unique().tolist()
-)
+available_sectors = sorted(sector_summary["broad_sector"].dropna().unique().tolist())
 
 selected_sector = st.sidebar.selectbox(
     "Select Sector",
@@ -58,10 +54,7 @@ selected_sector = st.sidebar.selectbox(
 )
 
 market_caps = ["All"] + sorted(
-    sector_details["market_cap_category"]
-    .dropna()
-    .unique()
-    .tolist()
+    sector_details["market_cap_category"].dropna().unique().tolist()
 )
 
 selected_market_cap = st.sidebar.selectbox(
@@ -94,10 +87,7 @@ for company_id in merged["company_id"].unique():
         if pl.empty:
             continue
 
-        latest = (
-            pl.sort_values("year")
-            .iloc[-1]
-        )
+        latest = pl.sort_values("year").iloc[-1]
 
         sales_list.append(
             {
@@ -127,43 +117,32 @@ market_cap_size = {
     "Small Cap": 30,
 }
 
-merged["bubble_size"] = (
-    merged["market_cap_category"]
-    .map(market_cap_size)
-    .fillna(25)
-)
+merged["bubble_size"] = merged["market_cap_category"].map(market_cap_size).fillna(25)
 
 # ==========================================================
 # Filter Sector
 # ==========================================================
 
-filtered_df = merged[
-    merged["broad_sector"] == selected_sector
-].copy()
+filtered_df = merged[merged["broad_sector"] == selected_sector].copy()
 
 if selected_market_cap != "All":
 
-    filtered_df = filtered_df[
-        filtered_df["market_cap_category"]
-        == selected_market_cap
-    ]
+    filtered_df = filtered_df[filtered_df["market_cap_category"] == selected_market_cap]
 
 # ==========================================================
 # KPI Cards
 # ==========================================================
 
-summary = sector_summary[
-    sector_summary["broad_sector"] == selected_sector
-].iloc[0]
+summary = sector_summary[sector_summary["broad_sector"] == selected_sector].iloc[0]
 
 col1, col2 = st.columns(2)
 
 with col1:
 
     st.metric(
-    "Companies",
-    int(summary["company_count"]),
-)
+        "Companies",
+        int(summary["company_count"]),
+    )
 
 st.metric(
     "Average Index Weight",
@@ -198,15 +177,9 @@ display_df.columns = [
     "ROE (%)",
 ]
 
-display_df["Revenue"] = (
-    pd.to_numeric(display_df["Revenue"], errors="coerce")
-    .round(2)
-)
+display_df["Revenue"] = pd.to_numeric(display_df["Revenue"], errors="coerce").round(2)
 
-display_df["ROE (%)"] = (
-    pd.to_numeric(display_df["ROE (%)"], errors="coerce")
-    .round(2)
-)
+display_df["ROE (%)"] = pd.to_numeric(display_df["ROE (%)"], errors="coerce").round(2)
 
 st.dataframe(
     display_df,
@@ -252,9 +225,7 @@ bubble_df = bubble_df.dropna(
 
 if bubble_df.empty:
 
-    st.warning(
-        "No Revenue / ROE data available for this sector."
-    )
+    st.warning("No Revenue / ROE data available for this sector.")
 
 else:
 
@@ -318,27 +289,21 @@ with summary_col1:
 
     st.metric(
         "Average Revenue",
-        f"{avg_revenue:,.2f}"
-        if pd.notna(avg_revenue)
-        else "N/A",
+        f"{avg_revenue:,.2f}" if pd.notna(avg_revenue) else "N/A",
     )
 
 with summary_col2:
 
     st.metric(
         "Average ROE",
-        f"{avg_roe:.2f}%"
-        if pd.notna(avg_roe)
-        else "N/A",
+        f"{avg_roe:.2f}%" if pd.notna(avg_roe) else "N/A",
     )
 
 with summary_col3:
 
     st.metric(
         "Average Quality Score",
-        f"{avg_quality:.2f}"
-        if pd.notna(avg_quality)
-        else "N/A",
+        f"{avg_quality:.2f}" if pd.notna(avg_quality) else "N/A",
     )
 
 st.divider()
@@ -365,8 +330,7 @@ with left:
     )
 
     revenue_df = (
-        revenue_df
-        .dropna(subset=["revenue"])
+        revenue_df.dropna(subset=["revenue"])
         .sort_values(
             "revenue",
             ascending=False,
@@ -416,8 +380,7 @@ with right:
     )
 
     roe_df = (
-        roe_df
-        .dropna(subset=["return_on_equity_pct"])
+        roe_df.dropna(subset=["return_on_equity_pct"])
         .sort_values(
             "return_on_equity_pct",
             ascending=False,
@@ -524,7 +487,7 @@ else:
     st.plotly_chart(
         fig,
         width="stretch",
-    )        
+    )
 
 st.divider()
 
@@ -595,9 +558,7 @@ if not filtered_df.empty:
 
     if not revenue_df.empty:
 
-        highest_revenue = revenue_df.loc[
-            revenue_df["revenue"].idxmax()
-        ]
+        highest_revenue = revenue_df.loc[revenue_df["revenue"].idxmax()]
 
         st.success(
             f"💰 Highest Revenue: **{highest_revenue['company_name']}** "
@@ -605,15 +566,11 @@ if not filtered_df.empty:
         )
 
     # Highest ROE
-    roe_df = filtered_df.dropna(
-        subset=["return_on_equity_pct"]
-    )
+    roe_df = filtered_df.dropna(subset=["return_on_equity_pct"])
 
     if not roe_df.empty:
 
-        highest_roe = roe_df.loc[
-            roe_df["return_on_equity_pct"].idxmax()
-        ]
+        highest_roe = roe_df.loc[roe_df["return_on_equity_pct"].idxmax()]
 
         st.info(
             f"📈 Highest ROE: **{highest_roe['company_name']}** "
@@ -621,15 +578,11 @@ if not filtered_df.empty:
         )
 
     # Highest Quality Score
-    quality_df = filtered_df.dropna(
-        subset=["composite_quality_score"]
-    )
+    quality_df = filtered_df.dropna(subset=["composite_quality_score"])
 
     if not quality_df.empty:
 
-        best_quality = quality_df.loc[
-            quality_df["composite_quality_score"].idxmax()
-        ]
+        best_quality = quality_df.loc[quality_df["composite_quality_score"].idxmax()]
 
         st.info(
             f"⭐ Best Quality Score: **{best_quality['company_name']}** "
@@ -638,9 +591,7 @@ if not filtered_df.empty:
 
 else:
 
-    st.warning(
-        "No data available for the selected sector."
-    )
+    st.warning("No data available for the selected sector.")
 
 st.divider()
 
@@ -650,8 +601,7 @@ st.divider()
 
 with st.expander("ℹ️ Dataset Information"):
 
-    st.markdown(
-        """
+    st.markdown("""
 This dashboard combines information from multiple datasets:
 
 - Company Sector Classification
@@ -667,8 +617,7 @@ This dashboard combines information from multiple datasets:
 
 This visualization helps identify high-performing companies with
 strong profitability while comparing them across different sub-sectors.
-"""
-    )
+""")
 
 st.divider()
 
@@ -676,7 +625,4 @@ st.divider()
 # Footer
 # ==========================================================
 
-st.caption(
-    "Financial Intelligence Platform • Sprint 2 • Sector Analysis Dashboard"
-)
-
+st.caption("Financial Intelligence Platform • Sprint 2 • Sector Analysis Dashboard")

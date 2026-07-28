@@ -14,7 +14,6 @@ from __future__ import annotations
 import re
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 import streamlit as st
@@ -57,7 +56,7 @@ def get_connection() -> sqlite3.Connection:
 @st.cache_data(ttl=600, show_spinner=False)
 def run_query(
     sql: str,
-    params: Optional[tuple] = None,
+    params: tuple | None = None,
 ) -> pd.DataFrame:
     """
     Execute a SQL query and return a DataFrame.
@@ -91,6 +90,7 @@ def run_query(
 # ---------------------------------------------------------------------
 # Reporting Period Helpers
 # ---------------------------------------------------------------------
+
 
 def _parse_period(period: str):
     """
@@ -143,12 +143,10 @@ def get_latest_year() -> str:
     Sep 2024
     """
 
-    df = run_query(
-        """
+    df = run_query("""
         SELECT DISTINCT year
         FROM financial_ratios
-        """
-    )
+        """)
 
     periods = []
 
@@ -173,27 +171,23 @@ def get_latest_year() -> str:
 # Company Functions
 # ---------------------------------------------------------------------
 
+
 @st.cache_data(ttl=600, show_spinner=False)
 def get_companies() -> pd.DataFrame:
     """
     Return all companies sorted alphabetically.
     """
 
-    df = run_query(
-        """
+    df = run_query("""
         SELECT
             id,
             TRIM(company_name) AS company_name
         FROM companies
         ORDER BY company_name
-        """
-    )
+        """)
 
     df["company_name"] = (
-        df["company_name"]
-        .astype(str)
-        .str.replace("\n", "", regex=False)
-        .str.strip()
+        df["company_name"].astype(str).str.replace("\n", "", regex=False).str.strip()
     )
 
     return df
@@ -220,10 +214,7 @@ def search_company(
     )
 
     df["company_name"] = (
-        df["company_name"]
-        .astype(str)
-        .str.replace("\n", "", regex=False)
-        .str.strip()
+        df["company_name"].astype(str).str.replace("\n", "", regex=False).str.strip()
     )
 
     return df
@@ -326,16 +317,14 @@ def get_all_latest_ratios() -> pd.DataFrame:
     correctly.
     """
 
-    df = run_query(
-        """
+    df = run_query("""
         SELECT
             fr.*,
             c.company_name
         FROM financial_ratios fr
         INNER JOIN companies c
             ON fr.company_id = c.id
-        """
-    )
+        """)
 
     if df.empty:
         return df
@@ -359,6 +348,7 @@ def get_all_latest_ratios() -> pd.DataFrame:
 
     return df
 
+
 @st.cache_data(ttl=600, show_spinner=False)
 def get_ratios_by_year(year: str) -> pd.DataFrame:
     """
@@ -380,7 +370,6 @@ def get_ratios_by_year(year: str) -> pd.DataFrame:
         """,
         (f"%{year}",),
     )
-
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -407,6 +396,7 @@ def get_ratios_by_year(year: str) -> pd.DataFrame:
 
     return df
 
+
 # ---------------------------------------------------------------------
 # Peer Group Functions
 # ---------------------------------------------------------------------
@@ -418,14 +408,12 @@ def get_peer_groups() -> pd.DataFrame:
     Return all peer groups.
     """
 
-    return run_query(
-        """
+    return run_query("""
         SELECT DISTINCT
             peer_group_name
         FROM peer_groups
         ORDER BY peer_group_name
-        """
-    )
+        """)
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -595,7 +583,6 @@ def get_dashboard_summary() -> dict:
             if not latest.empty
             else 0
         ),
-
         "average_quality_score": (
             float(round(latest["composite_quality_score"].mean(), 2))
             if not latest.empty
@@ -618,7 +605,7 @@ def get_company_names() -> list[str]:
 
 
 @st.cache_data(ttl=600, show_spinner=False)
-def get_company_id(company_name: str) -> Optional[str]:
+def get_company_id(company_name: str) -> str | None:
     """
     Return company ID from company name.
     """
@@ -749,13 +736,11 @@ def get_sectors() -> pd.DataFrame:
     Return all sector information.
     """
 
-    return run_query(
-        """
+    return run_query("""
         SELECT *
         FROM sectors
         ORDER BY broad_sector, company_id
-        """
-    )
+        """)
 
 
 @st.cache_data(ttl=600, show_spinner=False)
@@ -764,8 +749,7 @@ def get_sector_summary() -> pd.DataFrame:
     Return company count by broad sector.
     """
 
-    return run_query(
-        """
+    return run_query("""
         SELECT
 
             broad_sector,
@@ -779,14 +763,13 @@ def get_sector_summary() -> pd.DataFrame:
         GROUP BY broad_sector
 
         ORDER BY company_count DESC
-        """
-    )
+        """)
 
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_companies_by_sector(
     sector: str,
-    ) -> pd.DataFrame:
+) -> pd.DataFrame:
     """
     Return all companies belonging to one sector.
     """
@@ -821,11 +804,11 @@ def get_companies_by_sector(
     )
 
 
-
 # ---------------------------------------------------------------------
 # ---------------------------------------------------------------------
 # Annual Reports
 # ---------------------------------------------------------------------
+
 
 @st.cache_data(ttl=600, show_spinner=False)
 def get_documents(company_id: str) -> pd.DataFrame:
@@ -844,4 +827,3 @@ def get_documents(company_id: str) -> pd.DataFrame:
         """,
         (company_id,),
     )
-

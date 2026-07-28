@@ -15,7 +15,6 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 from reportlab.lib.enums import TA_CENTER
@@ -24,18 +23,16 @@ from reportlab.lib.styles import (
     getSampleStyleSheet,
 )
 from reportlab.lib.units import inch
-
 from reportlab.platypus import (
+    PageBreak,
     Paragraph,
-    Spacer,
     SimpleDocTemplate,
+    Spacer,
     Table,
     TableStyle,
-    PageBreak,
 )
 
 from src.reports.tearsheet import DataRepository
-
 
 # ---------------------------------------------------------
 # Logging
@@ -64,10 +61,7 @@ PORTFOLIO_DIR.mkdir(
     exist_ok=True,
 )
 
-PORTFOLIO_FILE = (
-    PORTFOLIO_DIR /
-    "portfolio_summary.pdf"
-)
+PORTFOLIO_FILE = PORTFOLIO_DIR / "portfolio_summary.pdf"
 
 
 # ---------------------------------------------------------
@@ -115,6 +109,7 @@ SMALL_STYLE = ParagraphStyle(
 # ---------------------------------------------------------
 # Repository
 # ---------------------------------------------------------
+
 
 class PortfolioRepository:
 
@@ -210,11 +205,7 @@ class PortfolioRepository:
             errors="ignore",
         )
 
-        return (
-            df
-            .sort_values("company_name")
-            .reset_index(drop=True)
-        )
+        return df.sort_values("company_name").reset_index(drop=True)
 
     # -----------------------------------------------------
     def previous_pnl(self, company_id):
@@ -226,11 +217,7 @@ class PortfolioRepository:
         if len(df) < 2:
             return None
 
-        years = (
-            df["year"]
-            .astype(str)
-            .str.extract(r"(\d{4})")[0]
-        )
+        years = df["year"].astype(str).str.extract(r"(\d{4})")[0]
 
         df = df.assign(
             year_num=pd.to_numeric(
@@ -240,8 +227,7 @@ class PortfolioRepository:
         )
 
         df = (
-            df
-            .dropna(subset=["year_num"])
+            df.dropna(subset=["year_num"])
             .sort_values("year_num")
             .drop_duplicates(
                 subset="year_num",
@@ -253,10 +239,12 @@ class PortfolioRepository:
             return None
 
         return df.iloc[-2]
-    
+
+
 # ---------------------------------------------------------
 # Portfolio Summary Generator
 # ---------------------------------------------------------
+
 
 class PortfolioSummaryGenerator:
 
@@ -328,23 +316,14 @@ class PortfolioSummaryGenerator:
         )
 
         return [
-
             ["Revenue", self.fmt(company["sales"]), revenue_arrow],
-
             ["Net Profit", self.fmt(company["net_profit"]), profit_arrow],
-
             ["ROE", self.fmt(company["return_on_equity_pct"]), "→"],
-
             ["ROCE", self.fmt(company["roce_percentage"]), "→"],
-
             ["P/E Ratio", self.fmt(company["pe_ratio"]), "→"],
-
             ["Market Cap", self.fmt(company["market_cap_crore"]), "→"],
-
             ["EPS", self.fmt(company["eps"]), eps_arrow],
-
             ["Dividend", self.fmt(company["dividend_payout"]), dividend_arrow],
-
         ]
 
     # -----------------------------------------------------
@@ -356,27 +335,17 @@ class PortfolioSummaryGenerator:
     ):
 
         story.append(
-
             Paragraph(
-
                 company["company_name"],
-
                 TITLE_STYLE,
-
             )
-
         )
 
         story.append(
-
             Paragraph(
-
                 f"<b>Sector:</b> {company['broad_sector']}",
-
                 HEADER_STYLE,
-
             )
-
         )
 
         story.append(
@@ -394,82 +363,65 @@ class PortfolioSummaryGenerator:
             ]
         ]
 
-        rows.extend(
-
-            self.company_kpis(
-                company
-            )
-
-        )
+        rows.extend(self.company_kpis(company))
 
         table = Table(
-
             rows,
-
             colWidths=[
                 2.5 * inch,
                 2.0 * inch,
                 1.0 * inch,
             ],
-
         )
 
         table.setStyle(
-
-            TableStyle([
-
-                (
-                    "BACKGROUND",
-                    (0, 0),
-                    (-1, 0),
-                    NAVY,
-                ),
-
-                (
-                    "TEXTCOLOR",
-                    (0, 0),
-                    (-1, 0),
-                    colors.white,
-                ),
-
-                (
-                    "FONTNAME",
-                    (0, 0),
-                    (-1, 0),
-                    "Helvetica-Bold",
-                ),
-
-                (
-                    "GRID",
-                    (0, 0),
-                    (-1, -1),
-                    0.5,
-                    colors.grey,
-                ),
-
-                (
-                    "BACKGROUND",
-                    (0, 1),
-                    (-1, -1),
-                    LIGHT,
-                ),
-
-                (
-                    "BOTTOMPADDING",
-                    (0, 0),
-                    (-1, 0),
-                    6,
-                ),
-
-                (
-                    "ALIGN",
-                    (2, 1),
-                    (2, -1),
-                    "CENTER",
-                ),
-
-            ])
-
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        NAVY,
+                    ),
+                    (
+                        "TEXTCOLOR",
+                        (0, 0),
+                        (-1, 0),
+                        colors.white,
+                    ),
+                    (
+                        "FONTNAME",
+                        (0, 0),
+                        (-1, 0),
+                        "Helvetica-Bold",
+                    ),
+                    (
+                        "GRID",
+                        (0, 0),
+                        (-1, -1),
+                        0.5,
+                        colors.grey,
+                    ),
+                    (
+                        "BACKGROUND",
+                        (0, 1),
+                        (-1, -1),
+                        LIGHT,
+                    ),
+                    (
+                        "BOTTOMPADDING",
+                        (0, 0),
+                        (-1, 0),
+                        6,
+                    ),
+                    (
+                        "ALIGN",
+                        (2, 1),
+                        (2, -1),
+                        "CENTER",
+                    ),
+                ]
+            )
         )
 
         story.append(table)
@@ -484,9 +436,7 @@ class PortfolioSummaryGenerator:
 
         companies = self.repo.merged()
 
-        doc = SimpleDocTemplate(
-            str(PORTFOLIO_FILE)
-        )
+        doc = SimpleDocTemplate(str(PORTFOLIO_FILE))
 
         story = []
 
@@ -524,11 +474,7 @@ class PortfolioSummaryGenerator:
 
         companies = len(self.repo.company)
 
-        sectors = len(
-            self.repo.sector["broad_sector"]
-            .dropna()
-            .unique()
-        )
+        sectors = len(self.repo.sector["broad_sector"].dropna().unique())
 
         with open(
             review_file,
@@ -574,6 +520,7 @@ class PortfolioSummaryGenerator:
 # ---------------------------------------------------------
 # Main
 # ---------------------------------------------------------
+
 
 def main():
 

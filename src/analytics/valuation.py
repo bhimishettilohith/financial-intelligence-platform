@@ -13,9 +13,10 @@ output/valuation_summary.xlsx
 output/valuation_flags.csv
 """
 
+import logging
 import os
 import sqlite3
-import logging
+
 import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
@@ -24,50 +25,24 @@ from openpyxl import load_workbook
 # CONFIGURATION
 # =============================================================================
 
-BASE_DIR = os.path.abspath(
-    os.path.join(
-        os.path.dirname(__file__),
-        "../.."
-    )
-)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-DATABASE_PATH = os.path.join(
-    BASE_DIR,
-    "data",
-    "nifty100.db"
-)
+DATABASE_PATH = os.path.join(BASE_DIR, "data", "nifty100.db")
 
-MARKET_CAP_PATH = os.path.join(
-    BASE_DIR,
-    "data",
-    "supporting",
-    "market_cap.xlsx"
-)
+MARKET_CAP_PATH = os.path.join(BASE_DIR, "data", "supporting", "market_cap.xlsx")
 
-OUTPUT_DIR = os.path.join(
-    BASE_DIR,
-    "output"
-)
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 
-SUMMARY_FILE = os.path.join(
-    OUTPUT_DIR,
-    "valuation_summary.xlsx"
-)
+SUMMARY_FILE = os.path.join(OUTPUT_DIR, "valuation_summary.xlsx")
 
-FLAGS_FILE = os.path.join(
-    OUTPUT_DIR,
-    "valuation_flags.csv"
-)
+FLAGS_FILE = os.path.join(OUTPUT_DIR, "valuation_flags.csv")
 
 CAUTION_THRESHOLD = 1.50
 DISCOUNT_THRESHOLD = 0.70
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s : %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s : %(message)s")
 
 # =============================================================================
 # VALIDATION
@@ -77,14 +52,10 @@ logging.basicConfig(
 def validate_inputs():
 
     if not os.path.exists(DATABASE_PATH):
-        raise FileNotFoundError(
-            f"Database not found:\n{DATABASE_PATH}"
-        )
+        raise FileNotFoundError(f"Database not found:\n{DATABASE_PATH}")
 
     if not os.path.exists(MARKET_CAP_PATH):
-        raise FileNotFoundError(
-            f"Market Cap file not found:\n{MARKET_CAP_PATH}"
-        )
+        raise FileNotFoundError(f"Market Cap file not found:\n{MARKET_CAP_PATH}")
 
 
 # =============================================================================
@@ -131,9 +102,7 @@ def load_companies():
 
     df = run_query(query)
 
-    df = df.drop_duplicates(
-        subset="company_id"
-    )
+    df = df.drop_duplicates(subset="company_id")
 
     return df
 
@@ -149,9 +118,7 @@ def load_sectors():
 
     df = run_query(query)
 
-    df = df.drop_duplicates(
-        subset="company_id"
-    )
+    df = df.drop_duplicates(subset="company_id")
 
     return df
 
@@ -196,7 +163,7 @@ def extract_year(value):
             float,
             np.integer,
             np.floating,
-        )
+        ),
     ):
         return int(value)
 
@@ -234,15 +201,9 @@ def latest_records(df):
 
     temp["year_num"] = temp["year"].apply(extract_year)
 
-    temp = temp.sort_values(
-        ["company_id", "year_num"]
-    )
+    temp = temp.sort_values(["company_id", "year_num"])
 
-    latest = (
-        temp.groupby("company_id", as_index=False)
-        .tail(1)
-        .reset_index(drop=True)
-    )
+    latest = temp.groupby("company_id", as_index=False).tail(1).reset_index(drop=True)
 
     return latest.drop(columns="year_num")
 
@@ -256,62 +217,30 @@ def compute_fcf(cashflow):
 
     df = cashflow.copy()
 
-    df["fcf"] = (
-        df["operating_activity"]
-        +
-        df["investing_activity"]
-    )
+    df["fcf"] = df["operating_activity"] + df["investing_activity"]
 
     return df
 
 
-def compute_company_median_pe(
-    market_cap
-):
+def compute_company_median_pe(market_cap):
 
-    median_df = (
-        market_cap
-        .groupby("company_id")["pe_ratio"]
-        .median()
-        .reset_index()
-    )
+    median_df = market_cap.groupby("company_id")["pe_ratio"].median().reset_index()
 
-    median_df.rename(
-        columns={
-            "pe_ratio": "median_pe_5yr"
-        },
-        inplace=True
-    )
+    median_df.rename(columns={"pe_ratio": "median_pe_5yr"}, inplace=True)
 
     return median_df
 
 
-def compute_sector_median(
-    latest_market,
-    sectors
-):
+def compute_sector_median(latest_market, sectors):
 
-    temp = latest_market.merge(
-        sectors,
-        on="company_id",
-        how="left"
-    )
+    temp = latest_market.merge(sectors, on="company_id", how="left")
 
-    sector = (
-        temp
-        .groupby("broad_sector")["pe_ratio"]
-        .median()
-        .reset_index()
-    )
+    sector = temp.groupby("broad_sector")["pe_ratio"].median().reset_index()
 
-    sector.rename(
-        columns={
-            "pe_ratio": "sector_median_pe"
-        },
-        inplace=True
-    )
+    sector.rename(columns={"pe_ratio": "sector_median_pe"}, inplace=True)
 
     return sector
+
 
 # =============================================================================
 # DATA PREPARATION
@@ -334,51 +263,21 @@ def prepare_valuation_data():
 
     latest_cashflow = compute_fcf(latest_cashflow)
 
-    company_median = compute_company_median_pe(
-        market_cap
-    )
+    company_median = compute_company_median_pe(market_cap)
 
-    sector_median = compute_sector_median(
-        latest_market,
-        sectors
-    )
+    sector_median = compute_sector_median(latest_market, sectors)
 
     logging.info("Merging datasets...")
 
-    df = latest_market.merge(
-        companies,
-        on="company_id",
-        how="left"
-    )
+    df = latest_market.merge(companies, on="company_id", how="left")
 
-    df = df.merge(
-        sectors,
-        on="company_id",
-        how="left"
-    )
+    df = df.merge(sectors, on="company_id", how="left")
 
-    df = df.merge(
-        latest_cashflow[
-            [
-                "company_id",
-                "fcf"
-            ]
-        ],
-        on="company_id",
-        how="left"
-    )
+    df = df.merge(latest_cashflow[["company_id", "fcf"]], on="company_id", how="left")
 
-    df = df.merge(
-        company_median,
-        on="company_id",
-        how="left"
-    )
+    df = df.merge(company_median, on="company_id", how="left")
 
-    df = df.merge(
-        sector_median,
-        on="broad_sector",
-        how="left"
-    )
+    df = df.merge(sector_median, on="broad_sector", how="left")
 
     return df
 
@@ -393,14 +292,7 @@ def compute_fcf_yield(df):
     df = df.copy()
 
     df["fcf_yield_pct"] = np.where(
-        df["market_cap_crore"] > 0,
-        (
-            df["fcf"]
-            /
-            df["market_cap_crore"]
-        )
-        * 100,
-        np.nan
+        df["market_cap_crore"] > 0, (df["fcf"] / df["market_cap_crore"]) * 100, np.nan
     )
 
     return df
@@ -412,13 +304,8 @@ def compute_pe_vs_sector(df):
 
     df["pe_vs_sector_median_pct"] = np.where(
         df["sector_median_pe"] > 0,
-        (
-            df["pe_ratio"]
-            /
-            df["sector_median_pe"]
-        )
-        * 100,
-        np.nan
+        (df["pe_ratio"] / df["sector_median_pe"]) * 100,
+        np.nan,
     )
 
     return df
@@ -430,17 +317,8 @@ def compute_premium_discount(df):
 
     df["premium_discount_pct"] = np.where(
         df["sector_median_pe"] > 0,
-        (
-            (
-                df["pe_ratio"]
-                -
-                df["sector_median_pe"]
-            )
-            /
-            df["sector_median_pe"]
-        )
-        * 100,
-        np.nan
+        ((df["pe_ratio"] - df["sector_median_pe"]) / df["sector_median_pe"]) * 100,
+        np.nan,
     )
 
     return df
@@ -472,10 +350,7 @@ def compute_flags(df):
 
     df = df.copy()
 
-    df["flag"] = df.apply(
-        assign_flag,
-        axis=1
-    )
+    df["flag"] = df.apply(assign_flag, axis=1)
 
     return df
 
@@ -489,12 +364,7 @@ def create_summary(df):
 
     summary = df.copy()
 
-    summary.rename(
-        columns={
-            "broad_sector": "sector"
-        },
-        inplace=True
-    )
+    summary.rename(columns={"broad_sector": "sector"}, inplace=True)
 
     summary = summary[
         [
@@ -517,23 +387,13 @@ def create_summary(df):
     ]
 
     summary.sort_values(
-        [
-            "flag",
-            "fcf_yield_pct"
-        ],
-        ascending=[
-            True,
-            False
-        ],
-        inplace=True
+        ["flag", "fcf_yield_pct"], ascending=[True, False], inplace=True
     )
 
-    summary.reset_index(
-        drop=True,
-        inplace=True
-    )
+    summary.reset_index(drop=True, inplace=True)
 
     return summary
+
 
 # =============================================================================
 # EXPORT FUNCTIONS
@@ -562,15 +422,12 @@ def format_excel(file_path):
             try:
                 value = str(cell.value)
 
-                if len(value) > max_length:
-                    max_length = len(value)
+                max_length = max(max_length, len(value))
 
             except Exception:
                 pass
 
-        worksheet.column_dimensions[
-            column_letter
-        ].width = max_length + 3
+        worksheet.column_dimensions[column_letter].width = max_length + 3
 
     workbook.save(file_path)
 
@@ -584,16 +441,9 @@ def export_summary(summary):
 
     logging.info("Writing valuation_summary.xlsx")
 
-    with pd.ExcelWriter(
-        SUMMARY_FILE,
-        engine="openpyxl"
-    ) as writer:
+    with pd.ExcelWriter(SUMMARY_FILE, engine="openpyxl") as writer:
 
-        summary.to_excel(
-            writer,
-            index=False,
-            sheet_name="Valuation"
-        )
+        summary.to_excel(writer, index=False, sheet_name="Valuation")
 
     format_excel(SUMMARY_FILE)
 
@@ -607,19 +457,9 @@ def export_flags(summary):
 
     logging.info("Writing valuation_flags.csv")
 
-    flags = summary[
-        summary["flag"].isin(
-            [
-                "Caution",
-                "Discount"
-            ]
-        )
-    ].copy()
+    flags = summary[summary["flag"].isin(["Caution", "Discount"])].copy()
 
-    flags.to_csv(
-        FLAGS_FILE,
-        index=False
-    )
+    flags.to_csv(FLAGS_FILE, index=False)
 
 
 # =============================================================================
@@ -636,47 +476,24 @@ def print_summary(summary):
 
     print(f"Companies Analysed : {len(summary)}")
 
-    print(
-        f"Caution Companies : "
-        f"{(summary.flag == 'Caution').sum()}"
-    )
+    print(f"Caution Companies : " f"{(summary.flag == 'Caution').sum()}")
 
-    print(
-        f"Discount Companies : "
-        f"{(summary.flag == 'Discount').sum()}"
-    )
+    print(f"Discount Companies : " f"{(summary.flag == 'Discount').sum()}")
 
-    print(
-        f"Fair Companies : "
-        f"{(summary.flag == 'Fair').sum()}"
-    )
+    print(f"Fair Companies : " f"{(summary.flag == 'Fair').sum()}")
 
-    print(
-        f"Unknown Companies : "
-        f"{(summary.flag == 'Unknown').sum()}"
-    )
+    print(f"Unknown Companies : " f"{(summary.flag == 'Unknown').sum()}")
 
     print("=" * 70)
 
     print("\nTop 10 Companies by FCF Yield\n")
 
-    top10 = (
-        summary.sort_values(
-            "fcf_yield_pct",
-            ascending=False
-        )
-        .head(10)
-    )
+    top10 = summary.sort_values("fcf_yield_pct", ascending=False).head(10)
 
     print(
-        top10[
-            [
-                "company_name",
-                "sector",
-                "fcf_yield_pct",
-                "flag"
-            ]
-        ].to_string(index=False)
+        top10[["company_name", "sector", "fcf_yield_pct", "flag"]].to_string(
+            index=False
+        )
     )
 
     print("\n")
@@ -734,7 +551,6 @@ def main():
         # ------------------------------------------------------------------
 
         numeric_columns = [
-
             "market_cap_crore",
             "fcf",
             "fcf_yield_pct",
@@ -745,7 +561,6 @@ def main():
             "premium_discount_pct",
             "pb_ratio",
             "ev_ebitda",
-
         ]
 
         for column in numeric_columns:

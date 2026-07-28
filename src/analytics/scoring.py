@@ -7,66 +7,51 @@ from __future__ import annotations
 
 import pandas as pd
 
-
 # ----------------------------------------------------------
 # Metric Configuration
 # ----------------------------------------------------------
 
 METRICS = {
-
     # ---------------- Profitability (35%) ----------------
-
     "return_on_equity_pct": {
         "weight": 15,
         "higher_is_better": True,
     },
-
     "return_on_capital_employed_pct": {
         "weight": 10,
         "higher_is_better": True,
     },
-
     "net_profit_margin_pct": {
         "weight": 10,
         "higher_is_better": True,
     },
-
     # ---------------- Cash Quality (30%) ----------------
-
     "free_cash_flow_cr": {
         "weight": 15,
         "higher_is_better": True,
     },
-
     "cfo_quality_score": {
         "weight": 10,
         "higher_is_better": True,
     },
-
     "fcf_positive_flag": {
         "weight": 5,
         "higher_is_better": True,
     },
-
     # ---------------- Growth (20%) ----------------
-
     "revenue_cagr_5yr": {
         "weight": 10,
         "higher_is_better": True,
     },
-
     "pat_cagr_5yr": {
         "weight": 10,
         "higher_is_better": True,
     },
-
     # ---------------- Leverage (15%) ----------------
-
     "debt_to_equity": {
         "weight": 10,
         "higher_is_better": False,
     },
-
     "interest_coverage": {
         "weight": 5,
         "higher_is_better": True,
@@ -77,6 +62,7 @@ METRICS = {
 # ----------------------------------------------------------
 # Winsorization
 # ----------------------------------------------------------
+
 
 def winsorize(series: pd.Series) -> pd.Series:
     """
@@ -92,6 +78,7 @@ def winsorize(series: pd.Series) -> pd.Series:
 # ----------------------------------------------------------
 # Normalization
 # ----------------------------------------------------------
+
 
 def normalize(
     series: pd.Series,
@@ -110,10 +97,7 @@ def normalize(
             index=series.index,
         )
 
-    score = (
-        (series - minimum)
-        / (maximum - minimum)
-    ) * 100
+    score = ((series - minimum) / (maximum - minimum)) * 100
 
     if not higher_is_better:
         score = 100 - score
@@ -124,6 +108,7 @@ def normalize(
 # ----------------------------------------------------------
 # Score One Metric
 # ----------------------------------------------------------
+
 
 def score_metric(
     df: pd.DataFrame,
@@ -143,20 +128,22 @@ def score_metric(
 # Generate FCF Flag
 # ----------------------------------------------------------
 
+
 def add_fcf_flag(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
 
     df = df.copy()
 
-    df["fcf_positive_flag"] = (
-        df["free_cash_flow_cr"] > 0
-    ).astype(int)
+    df["fcf_positive_flag"] = (df["free_cash_flow_cr"] > 0).astype(int)
 
     return df
+
+
 # ----------------------------------------------------------
 # Composite Score
 # ----------------------------------------------------------
+
 
 def calculate_composite_score(
     df: pd.DataFrame,
@@ -198,15 +185,15 @@ def calculate_composite_score(
     # Avoid divide-by-zero
     total_weight = total_weight.replace(0, pd.NA)
 
-    df["composite_quality_score"] = (
-        total_score / total_weight
-    ).round(2)
+    df["composite_quality_score"] = (total_score / total_weight).round(2)
 
     return df
+
 
 # ----------------------------------------------------------
 # Sector Relative Score
 # ----------------------------------------------------------
+
 
 def calculate_sector_relative_score(
     df: pd.DataFrame,
@@ -219,9 +206,7 @@ def calculate_sector_relative_score(
     df = df.copy()
 
     if sector_column not in df.columns:
-        raise ValueError(
-            f"Column '{sector_column}' not found in DataFrame."
-        )
+        raise ValueError(f"Column '{sector_column}' not found in DataFrame.")
 
     def normalize_sector(group: pd.DataFrame) -> pd.Series:
 
@@ -236,15 +221,10 @@ def calculate_sector_relative_score(
                 index=group.index,
             )
 
-        return (
-            (scores - minimum)
-            / (maximum - minimum)
-        ) * 100
+        return ((scores - minimum) / (maximum - minimum)) * 100
 
     df["sector_relative_score"] = (
-        df.groupby(sector_column, group_keys=False)
-          .apply(normalize_sector)
-          .round(2)
+        df.groupby(sector_column, group_keys=False).apply(normalize_sector).round(2)
     )
 
     return df

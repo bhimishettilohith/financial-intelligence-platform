@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pandas as pd
 
 RAW_DATA_PATH = Path("data/raw")
@@ -10,7 +11,7 @@ CORE_FILES = [
     "cashflow.xlsx",
     "analysis.xlsx",
     "documents.xlsx",
-    "prosandcons.xlsx"
+    "prosandcons.xlsx",
 ]
 
 
@@ -21,10 +22,7 @@ def load_excel(file_name: str):
 
     file_path = RAW_DATA_PATH / file_name
 
-    df = pd.read_excel(
-        file_path,
-        header=1
-    )
+    df = pd.read_excel(file_path, header=1)
 
     print("\n" + "=" * 50)
     print(f"Loaded: {file_name}")

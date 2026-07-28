@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
 from typing import Any
 
-import sqlite3
 import numpy as np
 import pandas as pd
 import yaml
@@ -12,7 +12,6 @@ from src.analytics.scoring import (
     calculate_composite_score,
     calculate_sector_relative_score,
 )
-
 from src.screener.export import export_all_screeners
 from src.screener.presets import PRESET_SCREENERS
 
@@ -31,88 +30,69 @@ class ScreenerEngine:
     """
 
     FILTER_MAP = {
-
         # ---------------- Minimum Filters ----------------
-
         "roe_min": (
             "return_on_equity_pct",
             ">=",
         ),
-
         "free_cash_flow_min": (
             "free_cash_flow_cr",
             ">=",
         ),
-
         "revenue_cagr_5yr_min": (
             "revenue_cagr_5yr",
             ">=",
         ),
-
         "pat_cagr_5yr_min": (
             "pat_cagr_5yr",
             ">=",
         ),
-
         "operating_profit_margin_min": (
             "operating_profit_margin_pct",
             ">=",
         ),
-
         "interest_coverage_min": (
             "interest_coverage",
             ">=",
         ),
-
         "net_profit_min": (
             "net_profit",
             ">=",
         ),
-
         "eps_cagr_5yr_min": (
             "eps_cagr_5yr",
             ">=",
         ),
-
         "asset_turnover_min": (
             "asset_turnover",
             ">=",
         ),
-
         "sales_min": (
             "sales",
             ">=",
         ),
-
         # ---------------- Maximum Filters ----------------
-
         "debt_to_equity_max": (
             "debt_to_equity",
             "<=",
         ),
-
         "pe_max": (
             "pe_ratio",
             "<=",
         ),
-
         "pb_max": (
             "pb_ratio",
             "<=",
         ),
-
         "dividend_payout_max": (
             "dividend_payout",
             "<=",
         ),
-
         # ---------------- Future Metrics ----------------
-
         "dividend_yield_min": (
             "dividend_yield",
             ">=",
         ),
-
         "market_cap_min": (
             "market_cap",
             ">=",
@@ -147,38 +127,27 @@ class ScreenerEngine:
         """
 
         if preset_name not in PRESET_SCREENERS:
-            raise ValueError(
-                f"Unknown preset: {preset_name}"
-            )
+            raise ValueError(f"Unknown preset: {preset_name}")
 
         filters = PRESET_SCREENERS[preset_name]
 
-        latest_df = self.get_latest_records(
-            self.df
-        )
+        latest_df = self.get_latest_records(self.df)
 
         # ---------- Day 17 Composite Score ----------
 
-        latest_df = calculate_composite_score(
-            latest_df
-        )
+        latest_df = calculate_composite_score(latest_df)
 
-        latest_df = calculate_sector_relative_score(
-            latest_df
-        )
+        latest_df = calculate_sector_relative_score(latest_df)
 
         old_df = self.df
 
         self.df = latest_df
 
-        result = self.apply_filters(
-            filters
-        )
+        result = self.apply_filters(filters)
 
         self.df = old_df
 
         return result
-    
 
     def _apply_single_filter(
         self,
@@ -195,10 +164,7 @@ class ScreenerEngine:
             return df
 
         if column not in df.columns:
-            print(
-                f"[INFO] Skipping filter '{column}' "
-                "(column not available)"
-            )
+            print(f"[INFO] Skipping filter '{column}' " "(column not available)")
             return df
 
         if operator == ">=":
@@ -207,9 +173,7 @@ class ScreenerEngine:
         if operator == "<=":
             return df[df[column] <= threshold]
 
-        raise ValueError(
-            f"Unsupported operator: {operator}"
-        )
+        raise ValueError(f"Unsupported operator: {operator}")
 
     def apply_debt_to_equity_filter(
         self,
@@ -224,25 +188,16 @@ class ScreenerEngine:
         if threshold is None:
             return df
 
-        financials = df[
-            df["broad_sector"] == "Financials"
-        ]
+        financials = df[df["broad_sector"] == "Financials"]
 
-        others = df[
-            df["broad_sector"] != "Financials"
-        ]
+        others = df[df["broad_sector"] != "Financials"]
 
-        others = others[
-            others["debt_to_equity"] <= threshold
-        ]
+        others = others[others["debt_to_equity"] <= threshold]
 
-        return (
-            pd.concat(
-                [financials, others],
-                ignore_index=True,
-            )
-            .reset_index(drop=True)
-        )
+        return pd.concat(
+            [financials, others],
+            ignore_index=True,
+        ).reset_index(drop=True)
 
     def apply_filters(
         self,
@@ -277,18 +232,13 @@ class ScreenerEngine:
                 continue
 
             if filter_name in unsupported_filters:
-                print(
-                    f"[INFO] '{filter_name}' "
-                    "not available yet - skipped"
-                )
+                print(f"[INFO] '{filter_name}' " "not available yet - skipped")
                 continue
 
             if filter_name not in self.FILTER_MAP:
                 continue
 
-            column, operator = self.FILTER_MAP[
-                filter_name
-            ]
+            column, operator = self.FILTER_MAP[filter_name]
 
             # ---------- FIX ----------
             df = self._apply_single_filter(
@@ -304,13 +254,10 @@ class ScreenerEngine:
             else "composite_quality_score"
         )
 
-        df = (
-            df.sort_values(
-                by=sort_column,
-                ascending=False,
-            )
-            .reset_index(drop=True)
-        )
+        df = df.sort_values(
+            by=sort_column,
+            ascending=False,
+        ).reset_index(drop=True)
 
         return df
 
@@ -332,15 +279,9 @@ class ScreenerEngine:
 
         latest = df.copy()
 
-        latest = latest[
-            latest["year"] != "TTM"
-        ]
+        latest = latest[latest["year"] != "TTM"]
 
-        latest["year_rank"] = (
-            latest["year"]
-            .str.extract(r"(\d{4})")
-            .astype(float)
-        )
+        latest["year_rank"] = latest["year"].str.extract(r"(\d{4})").astype(float)
 
         latest = (
             latest.sort_values("year_rank")
@@ -366,7 +307,6 @@ class ScreenerEngine:
         ) as file:
 
             return yaml.safe_load(file)
-        
 
     def load_master_dataframe(
         self,
@@ -419,19 +359,13 @@ class ScreenerEngine:
             self.conn,
         )
 
-        pnl = (
-            pnl.sort_values(
-                ["company_id", "year"]
-            )
-            .drop_duplicates(
-                subset=["company_id", "year"],
-                keep="first",
-            )
+        pnl = pnl.sort_values(["company_id", "year"]).drop_duplicates(
+            subset=["company_id", "year"],
+            keep="first",
         )
 
         df = (
-            ratios
-            .merge(
+            ratios.merge(
                 companies,
                 on="company_id",
                 how="left",
@@ -459,11 +393,7 @@ class ScreenerEngine:
             "interest_coverage",
         ] = np.inf
 
-        return (
-            df.reset_index(
-                drop=True
-            )
-        )
+        return df.reset_index(drop=True)
 
 
 if __name__ == "__main__":
@@ -478,16 +408,11 @@ if __name__ == "__main__":
 
     for preset in PRESET_SCREENERS:
 
-        result = engine.run_preset(
-            preset
-        )
+        result = engine.run_preset(preset)
 
         results[preset] = result
 
-        print(
-            f"{preset:<25}"
-            f"{result['company_id'].nunique():>5} companies"
-        )
+        print(f"{preset:<25}" f"{result['company_id'].nunique():>5} companies")
 
         output = export_all_screeners(
             results,
@@ -497,5 +422,3 @@ if __name__ == "__main__":
     print(output)
 
     engine.conn.close()
-
-

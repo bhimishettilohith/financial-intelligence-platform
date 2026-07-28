@@ -1,6 +1,5 @@
-import streamlit as st
-import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 from src.dashboard.utils.db import get_all_latest_ratios
 
@@ -11,23 +10,24 @@ st.set_page_config(
 )
 
 st.title("💰 Capital Allocation Map")
-st.caption(
-    "Treemap of NIFTY companies grouped by capital allocation patterns."
-)
+st.caption("Treemap of NIFTY companies grouped by capital allocation patterns.")
 
 # ==========================================================
 # Load Data
 # ==========================================================
 
+
 @st.cache_data
 def load_ratios():
     return get_all_latest_ratios()
+
 
 df = load_ratios()
 
 # ==========================================================
 # Capital Allocation Pattern Classification
 # ==========================================================
+
 
 def classify_pattern(row):
 
@@ -44,19 +44,13 @@ def classify_pattern(row):
     # ------------------------------------------------------
     # Growth Reinvestors
     # ------------------------------------------------------
-    elif (
-        row["capex_intensity_pct"] >= 20
-        and row["revenue_cagr_5yr"] >= 10
-    ):
+    elif row["capex_intensity_pct"] >= 20 and row["revenue_cagr_5yr"] >= 10:
         return "Growth Reinvestors"
 
     # ------------------------------------------------------
     # Cash Generators
     # ------------------------------------------------------
-    elif (
-        row["free_cash_flow_cr"] > 0
-        and row["cfo_quality_score"] >= 70
-    ):
+    elif row["free_cash_flow_cr"] > 0 and row["cfo_quality_score"] >= 70:
         return "Cash Generators"
 
     # ------------------------------------------------------
@@ -68,19 +62,13 @@ def classify_pattern(row):
     # ------------------------------------------------------
     # Efficient Capital Allocators
     # ------------------------------------------------------
-    elif (
-        row["return_on_capital_employed_pct"] >= 20
-        and row["debt_to_equity"] <= 0.5
-    ):
+    elif row["return_on_capital_employed_pct"] >= 20 and row["debt_to_equity"] <= 0.5:
         return "Efficient Capital Allocators"
 
     # ------------------------------------------------------
     # Deleveraging Companies
     # ------------------------------------------------------
-    elif (
-        row["debt_to_equity"] <= 0.30
-        or row["net_debt"] <= 0
-    ):
+    elif row["debt_to_equity"] <= 0.30 or row["net_debt"] <= 0:
         return "Deleveraging Companies"
 
     # ------------------------------------------------------
@@ -135,12 +123,9 @@ st.divider()
 # Treemap Data
 # ==========================================================
 
-pattern_summary = (
-    df.groupby("capital_pattern", as_index=False)
-      .agg(
-          company_count=("company_id", "count"),
-          avg_quality=("composite_quality_score", "mean"),
-      )
+pattern_summary = df.groupby("capital_pattern", as_index=False).agg(
+    company_count=("company_id", "count"),
+    avg_quality=("composite_quality_score", "mean"),
 )
 
 fig = px.treemap(
@@ -192,10 +177,7 @@ selected_pattern = st.selectbox(
     patterns,
 )
 
-filtered_df = (
-    df[df["capital_pattern"] == selected_pattern]
-    .copy()
-)
+filtered_df = df[df["capital_pattern"] == selected_pattern].copy()
 
 left, right = st.columns([2, 1])
 
@@ -261,28 +243,16 @@ avg_quality = filtered_df["composite_quality_score"].mean()
 avg_fcf = filtered_df["free_cash_flow_cr"].mean()
 
 with col1:
-    st.metric(
-        "Average ROE",
-        f"{avg_roe:.2f}%"
-    )
+    st.metric("Average ROE", f"{avg_roe:.2f}%")
 
 with col2:
-    st.metric(
-        "Average ROCE",
-        f"{avg_roce:.2f}%"
-    )
+    st.metric("Average ROCE", f"{avg_roce:.2f}%")
 
 with col3:
-    st.metric(
-        "Average Quality",
-        f"{avg_quality:.1f}"
-    )
+    st.metric("Average Quality", f"{avg_quality:.1f}")
 
 with col4:
-    st.metric(
-        "Average FCF",
-        f"{avg_fcf:,.0f}"
-    )
+    st.metric("Average FCF", f"{avg_fcf:,.0f}")
 
 st.divider()
 
@@ -294,9 +264,9 @@ st.subheader("📈 Company Distribution")
 
 distribution = (
     df.groupby("capital_pattern")
-      .size()
-      .reset_index(name="Companies")
-      .sort_values("Companies", ascending=False)
+    .size()
+    .reset_index(name="Companies")
+    .sort_values("Companies", ascending=False)
 )
 
 fig = px.bar(
@@ -308,9 +278,7 @@ fig = px.bar(
     title="Companies by Capital Allocation Pattern",
 )
 
-fig.update_traces(
-    textposition="outside"
-)
+fig.update_traces(textposition="outside")
 
 fig.update_layout(
     xaxis_title="Pattern",
@@ -335,14 +303,10 @@ with left:
 
     st.subheader("🏆 Highest ROE")
 
-    top_roe = (
-        filtered_df
-        .sort_values(
-            "return_on_equity_pct",
-            ascending=False,
-        )
-        .head(10)
-    )
+    top_roe = filtered_df.sort_values(
+        "return_on_equity_pct",
+        ascending=False,
+    ).head(10)
 
     fig = px.bar(
         top_roe,
@@ -353,9 +317,7 @@ with left:
         title="Top 10 ROE",
     )
 
-    fig.update_layout(
-        yaxis=dict(categoryorder="total ascending")
-    )
+    fig.update_layout(yaxis=dict(categoryorder="total ascending"))
 
     st.plotly_chart(
         fig,
@@ -366,14 +328,10 @@ with right:
 
     st.subheader("💰 Highest Free Cash Flow")
 
-    top_fcf = (
-        filtered_df
-        .sort_values(
-            "free_cash_flow_cr",
-            ascending=False,
-        )
-        .head(10)
-    )
+    top_fcf = filtered_df.sort_values(
+        "free_cash_flow_cr",
+        ascending=False,
+    ).head(10)
 
     fig = px.bar(
         top_fcf,
@@ -384,9 +342,7 @@ with right:
         title="Top 10 Free Cash Flow",
     )
 
-    fig.update_layout(
-        yaxis=dict(categoryorder="total ascending")
-    )
+    fig.update_layout(yaxis=dict(categoryorder="total ascending"))
 
     st.plotly_chart(
         fig,
@@ -401,21 +357,13 @@ st.divider()
 
 st.subheader("💡 Capital Allocation Insights")
 
-best_roe = filtered_df.loc[
-    filtered_df["return_on_equity_pct"].idxmax()
-]
+best_roe = filtered_df.loc[filtered_df["return_on_equity_pct"].idxmax()]
 
-best_roce = filtered_df.loc[
-    filtered_df["return_on_capital_employed_pct"].idxmax()
-]
+best_roce = filtered_df.loc[filtered_df["return_on_capital_employed_pct"].idxmax()]
 
-best_quality = filtered_df.loc[
-    filtered_df["composite_quality_score"].idxmax()
-]
+best_quality = filtered_df.loc[filtered_df["composite_quality_score"].idxmax()]
 
-highest_fcf = filtered_df.loc[
-    filtered_df["free_cash_flow_cr"].idxmax()
-]
+highest_fcf = filtered_df.loc[filtered_df["free_cash_flow_cr"].idxmax()]
 
 st.success(
     f"🏆 Highest ROE: **{best_roe['company_name']}** "
@@ -445,8 +393,7 @@ st.divider()
 
 with st.expander("ℹ️ About Capital Allocation Patterns"):
 
-    st.markdown(
-        """
+    st.markdown("""
 The Capital Allocation Map groups companies according to their
 financial characteristics using:
 
@@ -461,11 +408,8 @@ financial characteristics using:
 Each company is assigned to one capital allocation pattern,
 allowing quick comparison of businesses with similar financial
 behaviour.
-"""
-    )
+""")
 
 st.divider()
 
-st.caption(
-    "Financial Intelligence Platform • Sprint 2 • Capital Allocation Dashboard"
-)
+st.caption("Financial Intelligence Platform • Sprint 2 • Capital Allocation Dashboard")

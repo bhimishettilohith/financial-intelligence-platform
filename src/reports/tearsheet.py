@@ -10,26 +10,22 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.colors import HexColor
+from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.lib.colors import HexColor
-from reportlab.lib.utils import ImageReader
-
 from reportlab.platypus import (
-    SimpleDocTemplate,
+    Image,
+    PageBreak,
     Paragraph,
+    SimpleDocTemplate,
     Spacer,
     Table,
     TableStyle,
-    Image,
-    PageBreak,
 )
 
 # ----------------------------------------------------------
@@ -83,21 +79,15 @@ SUPPORTING_DIR = PROJECT_ROOT / "data" / "supporting"
 
 SECTORS_FILE = SUPPORTING_DIR / "sectors.xlsx"
 
-FINANCIAL_RATIOS_FILE = (
-    SUPPORTING_DIR / "financial_ratios.xlsx"
-)
+FINANCIAL_RATIOS_FILE = SUPPORTING_DIR / "financial_ratios.xlsx"
 
-MARKET_CAP_FILE = (
-    SUPPORTING_DIR / "market_cap.xlsx"
-)
+MARKET_CAP_FILE = SUPPORTING_DIR / "market_cap.xlsx"
 
 # ----------------------------------------------------------
 # Generated Analytics
 # ----------------------------------------------------------
 
-CASHFLOW_INTELLIGENCE = (
-    OUTPUT_DIR / "cashflow_intelligence.xlsx"
-)
+CASHFLOW_INTELLIGENCE = OUTPUT_DIR / "cashflow_intelligence.xlsx"
 
 # ----------------------------------------------------------
 # Theme
@@ -147,6 +137,7 @@ SMALL_STYLE = ParagraphStyle(
 # ----------------------------------------------------------
 # Repository
 # ----------------------------------------------------------
+
 
 class DataRepository:
     """
@@ -198,17 +189,11 @@ class DataRepository:
         # Supporting datasets
         # --------------------------------------------------
 
-        self.sectors = pd.read_excel(
-            SECTORS_FILE
-        )
+        self.sectors = pd.read_excel(SECTORS_FILE)
 
-        self.financial_ratios = pd.read_excel(
-            FINANCIAL_RATIOS_FILE
-        )
+        self.financial_ratios = pd.read_excel(FINANCIAL_RATIOS_FILE)
 
-        self.market_cap = pd.read_excel(
-            MARKET_CAP_FILE
-        )
+        self.market_cap = pd.read_excel(MARKET_CAP_FILE)
 
         # --------------------------------------------------
         # Generated analytics
@@ -216,9 +201,7 @@ class DataRepository:
 
         if CASHFLOW_INTELLIGENCE.exists():
 
-            self.cashflow_intelligence = pd.read_excel(
-                CASHFLOW_INTELLIGENCE
-            )
+            self.cashflow_intelligence = pd.read_excel(CASHFLOW_INTELLIGENCE)
 
         else:
 
@@ -228,15 +211,11 @@ class DataRepository:
 
     def company_profile(self, company_id):
 
-        df = self.company[
-            self.company["id"] == company_id
-        ]
+        df = self.company[self.company["id"] == company_id]
 
         if df.empty:
 
-            raise ValueError(
-                f"Company not found: {company_id}"
-            )
+            raise ValueError(f"Company not found: {company_id}")
 
         return df.iloc[0]
 
@@ -247,20 +226,11 @@ class DataRepository:
 
         df = df.copy()
 
-        df["year_num"] = (
-            df["year"]
-            .astype(str)
-            .str.extract(r"(\d{4})")[0]
-        )
+        df["year_num"] = df["year"].astype(str).str.extract(r"(\d{4})")[0]
 
-        df = df[
-            df["year_num"].notna()
-        ].copy()
+        df = df[df["year_num"].notna()].copy()
 
-        df["year_num"] = (
-            df["year_num"]
-            .astype(int)
-        )
+        df["year_num"] = df["year_num"].astype(int)
 
         return df
 
@@ -268,9 +238,7 @@ class DataRepository:
 
     def pnl(self, company_id):
 
-        df = self.pl[
-            self.pl.company_id == company_id
-        ]
+        df = self.pl[self.pl.company_id == company_id]
 
         df = self._prepare_year(df)
 
@@ -280,9 +248,7 @@ class DataRepository:
 
     def balance_sheet(self, company_id):
 
-        df = self.bs[
-            self.bs.company_id == company_id
-        ]
+        df = self.bs[self.bs.company_id == company_id]
 
         df = self._prepare_year(df)
 
@@ -292,9 +258,7 @@ class DataRepository:
 
     def cashflow(self, company_id):
 
-        df = self.cf[
-            self.cf.company_id == company_id
-        ]
+        df = self.cf[self.cf.company_id == company_id]
 
         df = self._prepare_year(df)
 
@@ -304,17 +268,13 @@ class DataRepository:
 
     def analysis_data(self, company_id):
 
-        return self.analysis[
-            self.analysis.company_id == company_id
-        ]
+        return self.analysis[self.analysis.company_id == company_id]
 
     # --------------------------------------------------
 
     def pros_cons(self, company_id):
 
-        return self.pros[
-            self.pros.company_id == company_id
-        ]
+        return self.pros[self.pros.company_id == company_id]
 
     # --------------------------------------------------
 
@@ -331,6 +291,7 @@ class DataRepository:
             return None
 
         return df.iloc[0]
+
     # --------------------------------------------------
 
     def companies(self):
@@ -357,21 +318,11 @@ class DataRepository:
         for every company.
         """
 
-        df = self._prepare_year(
-            self.market_cap
-        )
+        df = self._prepare_year(self.market_cap)
 
-        idx = (
-            df.groupby("company_id")[
-                "year_num"
-            ].idxmax()
-        )
+        idx = df.groupby("company_id")["year_num"].idxmax()
 
-        return (
-            df.loc[idx]
-            .sort_values("company_id")
-            .reset_index(drop=True)
-        )
+        return df.loc[idx].sort_values("company_id").reset_index(drop=True)
 
     # --------------------------------------------------
 
@@ -381,21 +332,11 @@ class DataRepository:
         for every company.
         """
 
-        df = self._prepare_year(
-            self.financial_ratios
-        )
+        df = self._prepare_year(self.financial_ratios)
 
-        idx = (
-            df.groupby("company_id")[
-                "year_num"
-            ].idxmax()
-        )
+        idx = df.groupby("company_id")["year_num"].idxmax()
 
-        return (
-            df.loc[idx]
-            .sort_values("company_id")
-            .reset_index(drop=True)
-        )
+        return df.loc[idx].sort_values("company_id").reset_index(drop=True)
 
     # --------------------------------------------------
 
@@ -405,25 +346,17 @@ class DataRepository:
         for every company.
         """
 
-        df = self._prepare_year(
-            self.pl
-        )
+        df = self._prepare_year(self.pl)
 
-        idx = (
-            df.groupby("company_id")[
-                "year_num"
-            ].idxmax()
-        )
+        idx = df.groupby("company_id")["year_num"].idxmax()
 
-        return (
-            df.loc[idx]
-            .sort_values("company_id")
-            .reset_index(drop=True)
-        )
-    
+        return df.loc[idx].sort_values("company_id").reset_index(drop=True)
+
+
 # ----------------------------------------------------------
 # Chart Builder
 # ----------------------------------------------------------
+
 
 class ChartBuilder:
     """
@@ -697,9 +630,12 @@ class ChartBuilder:
                 image.unlink()
             except Exception as e:
                 logger.warning(f"Could not delete {image}: {e}")
+
+
 # ----------------------------------------------------------
 # PDF Components
 # ----------------------------------------------------------
+
 
 class PDFComponents:
     """
@@ -772,7 +708,6 @@ class PDFComponents:
 
     @staticmethod
     def kpi_cards(kpis):
-
         """
         kpis should be a list of:
 
@@ -866,21 +801,9 @@ class PDFComponents:
     @staticmethod
     def pros_cons_box(pros, cons):
 
-        pros = "<br/>".join(
-            [
-                "• " + str(x)
-                for x in pros
-                if pd.notna(x)
-            ]
-        )
+        pros = "<br/>".join(["• " + str(x) for x in pros if pd.notna(x)])
 
-        cons = "<br/>".join(
-            [
-                "• " + str(x)
-                for x in cons
-                if pd.notna(x)
-            ]
-        )
+        cons = "<br/>".join(["• " + str(x) for x in cons if pd.notna(x)])
 
         left = Paragraph(
             f"<b>Pros</b><br/><br/>{pros}",
@@ -974,9 +897,12 @@ class PDFComponents:
         )
 
         return badge
+
+
 # ----------------------------------------------------------
 # Tearsheet Generator
 # ----------------------------------------------------------
+
 
 class TearsheetGenerator:
 
@@ -994,17 +920,11 @@ class TearsheetGenerator:
         company_id,
     ):
 
-        company = self.repo.company_profile(
-            company_id
-        )
+        company = self.repo.company_profile(company_id)
 
-        pnl = self.repo.pnl(
-            company_id
-        )
+        pnl = self.repo.pnl(company_id)
 
-        analysis = self.repo.analysis_data(
-            company_id
-        )
+        analysis = self.repo.analysis_data(company_id)
 
         # -----------------------------
         # Charts
@@ -1032,48 +952,37 @@ class TearsheetGenerator:
         latest = pnl.iloc[-1]
 
         kpis = [
-
             (
                 "Revenue",
                 f"{latest['sales']:,.0f}",
             ),
-
             (
                 "Net Profit",
                 f"{latest['net_profit']:,.0f}",
             ),
-
             (
                 "EPS",
                 f"{latest['eps']:.2f}",
             ),
-
             (
                 "Dividend %",
                 f"{latest['dividend_payout']:.1f}",
             ),
-
             (
                 "ROE",
                 f"{company['roe_percentage']}%",
             ),
-
             (
                 "ROCE",
                 f"{company['roce_percentage']}%",
             ),
-
         ]
 
         # -----------------------------
         # Layout
         # -----------------------------
 
-        story.append(
-            PDFComponents.company_header(
-                company
-            )
-        )
+        story.append(PDFComponents.company_header(company))
 
         story.append(
             Spacer(
@@ -1082,11 +991,7 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.kpi_cards(
-                kpis
-            )
-        )
+        story.append(PDFComponents.kpi_cards(kpis))
 
         story.append(
             Spacer(
@@ -1095,17 +1000,9 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.section_title(
-                "Revenue"
-            )
-        )
+        story.append(PDFComponents.section_title("Revenue"))
 
-        story.append(
-            PDFComponents.chart(
-                revenue_chart
-            )
-        )
+        story.append(PDFComponents.chart(revenue_chart))
 
         story.append(
             Spacer(
@@ -1114,17 +1011,9 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.section_title(
-                "Net Profit"
-            )
-        )
+        story.append(PDFComponents.section_title("Net Profit"))
 
-        story.append(
-            PDFComponents.chart(
-                profit_chart
-            )
-        )
+        story.append(PDFComponents.chart(profit_chart))
 
         story.append(
             Spacer(
@@ -1133,17 +1022,9 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.section_title(
-                "ROE Trend"
-            )
-        )
+        story.append(PDFComponents.section_title("ROE Trend"))
 
-        story.append(
-            PDFComponents.chart(
-                roe_chart
-            )
-        )
+        story.append(PDFComponents.chart(roe_chart))
 
     # ------------------------------------------------------
 
@@ -1153,51 +1034,29 @@ class TearsheetGenerator:
         company_id,
     ):
 
-        bs = self.repo.balance_sheet(
-            company_id
+        bs = self.repo.balance_sheet(company_id)
+
+        cf = self.repo.cashflow(company_id)
+
+        pros_df = self.repo.pros_cons(company_id)
+
+        intelligence = self.repo.intelligence(company_id)
+
+        balance_chart = self.charts.balance_chart(
+            company_id,
+            bs,
         )
 
-        cf = self.repo.cashflow(
-            company_id
+        cash_chart = self.charts.cashflow_chart(
+            company_id,
+            cf,
         )
 
-        pros_df = self.repo.pros_cons(
-            company_id
-        )
+        story.append(PageBreak())
 
-        intelligence = self.repo.intelligence(
-            company_id
-        )
+        story.append(PDFComponents.section_title("Balance Sheet Composition"))
 
-        balance_chart = (
-            self.charts.balance_chart(
-                company_id,
-                bs,
-            )
-        )
-
-        cash_chart = (
-            self.charts.cashflow_chart(
-                company_id,
-                cf,
-            )
-        )
-
-        story.append(
-            PageBreak()
-        )
-
-        story.append(
-            PDFComponents.section_title(
-                "Balance Sheet Composition"
-            )
-        )
-
-        story.append(
-            PDFComponents.chart(
-                balance_chart
-            )
-        )
+        story.append(PDFComponents.chart(balance_chart))
 
         story.append(
             Spacer(
@@ -1206,17 +1065,9 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.section_title(
-                "Cash Flow"
-            )
-        )
+        story.append(PDFComponents.section_title("Cash Flow"))
 
-        story.append(
-            PDFComponents.chart(
-                cash_chart
-            )
-        )
+        story.append(PDFComponents.chart(cash_chart))
 
         story.append(
             Spacer(
@@ -1237,19 +1088,11 @@ class TearsheetGenerator:
 
             if "pros" in pros_df.columns:
 
-                pros = (
-                    pros_df["pros"]
-                    .dropna()
-                    .tolist()
-                )
+                pros = pros_df["pros"].dropna().tolist()
 
             if "cons" in pros_df.columns:
 
-                cons = (
-                    pros_df["cons"]
-                    .dropna()
-                    .tolist()
-                )
+                cons = pros_df["cons"].dropna().tolist()
 
         story.append(
             PDFComponents.pros_cons_box(
@@ -1265,11 +1108,7 @@ class TearsheetGenerator:
             )
         )
 
-        story.append(
-            PDFComponents.capital_badge(
-                intelligence
-            )
-        )
+        story.append(PDFComponents.capital_badge(intelligence))
 
     # ------------------------------------------------------
 
@@ -1283,11 +1122,7 @@ class TearsheetGenerator:
             company_id,
         )
 
-        pdf_file = (
-            TEARSHEET_DIR
-            /
-            f"{company_id}_tearsheet.pdf"
-        )
+        pdf_file = TEARSHEET_DIR / f"{company_id}_tearsheet.pdf"
 
         doc = SimpleDocTemplate(
             str(pdf_file),
@@ -1305,14 +1140,13 @@ class TearsheetGenerator:
             company_id,
         )
 
-        doc.build(
-            story
-        )
+        doc.build(story)
 
         logger.info(
             "Saved -> %s",
             pdf_file,
         )
+
     # ------------------------------------------------------
 
     def generate_all(self):
@@ -1321,11 +1155,7 @@ class TearsheetGenerator:
         logger.info("Generating Company Tearsheets")
         logger.info("--------------------------------")
 
-        companies = (
-            self.repo.company["id"]
-            .dropna()
-            .unique()
-        )
+        companies = self.repo.company["id"].dropna().unique()
 
         success = 0
         failed = 0
@@ -1334,13 +1164,11 @@ class TearsheetGenerator:
 
             try:
 
-                self.generate_company(
-                    company_id
-                )
+                self.generate_company(company_id)
 
                 success += 1
 
-            except Exception as e:
+            except Exception:
 
                 logger.exception(
                     "Failed for %s",
@@ -1361,6 +1189,7 @@ class TearsheetGenerator:
 # ----------------------------------------------------------
 # Main
 # ----------------------------------------------------------
+
 
 def main():
 

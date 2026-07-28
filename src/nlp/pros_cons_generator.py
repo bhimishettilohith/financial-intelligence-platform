@@ -19,7 +19,6 @@ import pandas as pd
 
 from src.analytics.cagr import calculate_cagr
 
-
 # ---------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------
@@ -45,10 +44,7 @@ OUTPUT_FILE = OUTPUT_DIR / "pros_cons_generated.csv"
 # Logging
 # ---------------------------------------------------------------------
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(levelname)s | %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 
 logger = logging.getLogger(__name__)
 
@@ -72,15 +68,12 @@ def load_cashflow():
 def load_ratios():
     return pd.read_excel(RATIOS_FILE)
 
+
 def clean_year(df):
 
     df = df.copy()
 
-    df["year"] = (
-        df["year"]
-        .astype(str)
-        .str.extract(r"(\d{4})")[0]
-    )
+    df["year"] = df["year"].astype(str).str.extract(r"(\d{4})")[0]
 
     df = df.dropna(subset=["year"])
 
@@ -97,29 +90,13 @@ def get_company_snapshot(
     cf,
 ):
 
-    ratio_df = clean_year(
-        ratios[
-            ratios.company_id == company_id
-        ]
-    )
+    ratio_df = clean_year(ratios[ratios.company_id == company_id])
 
-    pl_df = clean_year(
-        pl[
-            pl.company_id == company_id
-        ]
-    )
+    pl_df = clean_year(pl[pl.company_id == company_id])
 
-    bs_df = clean_year(
-        bs[
-            bs.company_id == company_id
-        ]
-    )
+    bs_df = clean_year(bs[bs.company_id == company_id])
 
-    cf_df = clean_year(
-        cf[
-            cf.company_id == company_id
-        ]
-    )
+    cf_df = clean_year(cf[cf.company_id == company_id])
 
     ratio_df = ratio_df.sort_values("year")
     pl_df = pl_df.sort_values("year")
@@ -133,6 +110,7 @@ def get_company_snapshot(
         "cf": cf_df,
     }
 
+
 def latest(df):
 
     if df.empty:
@@ -140,12 +118,14 @@ def latest(df):
 
     return df.iloc[-1]
 
+
 def last_n(df, n):
 
     if len(df) < n:
         return pd.DataFrame()
 
     return df.tail(n)
+
 
 def compute_cagr(df, column, years):
 
@@ -158,9 +138,7 @@ def compute_cagr(df, column, years):
 
     target_year = latest["year"] - years
 
-    history = df[
-        df.year <= target_year
-    ]
+    history = df[df.year <= target_year]
 
     if history.empty:
         return None
@@ -189,6 +167,7 @@ def consecutive_positive(df, column, years):
 
     return (recent[column] > 0).all()
 
+
 def consecutive_increasing(df, column, years):
 
     recent = last_n(df, years)
@@ -207,6 +186,7 @@ def consecutive_decreasing(df, column, years):
         return False
 
     return recent[column].is_monotonic_decreasing
+
 
 def add_signal(
     results,
@@ -230,6 +210,7 @@ def add_signal(
         }
     )
 
+
 def pro_rule_1(company_id, snapshot, results):
 
     ratios = snapshot["ratios"]
@@ -241,10 +222,7 @@ def pro_rule_1(company_id, snapshot, results):
 
     if (recent["return_on_equity_pct"] > 20).all():
 
-        confidence = min(
-            100,
-            int(recent["return_on_equity_pct"].mean() * 3)
-        )
+        confidence = min(100, int(recent["return_on_equity_pct"].mean() * 3))
 
         add_signal(
             results,
@@ -254,6 +232,7 @@ def pro_rule_1(company_id, snapshot, results):
             "Consistently high return on equity above 20% demonstrates exceptional capital efficiency.",
             confidence,
         )
+
 
 def pro_rule_2(company_id, snapshot, results):
 
@@ -274,6 +253,7 @@ def pro_rule_2(company_id, snapshot, results):
             90,
         )
 
+
 def pro_rule_3(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -292,6 +272,7 @@ def pro_rule_3(company_id, snapshot, results):
             95,
         )
 
+
 def pro_rule_4(company_id, snapshot, results):
 
     cagr = compute_cagr(
@@ -305,10 +286,7 @@ def pro_rule_4(company_id, snapshot, results):
 
     if cagr > 15:
 
-        confidence = min(
-            100,
-            int(cagr * 4)
-        )
+        confidence = min(100, int(cagr * 4))
 
         add_signal(
             results,
@@ -319,6 +297,7 @@ def pro_rule_4(company_id, snapshot, results):
             confidence,
         )
 
+
 def pro_rule_5(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -328,12 +307,7 @@ def pro_rule_5(company_id, snapshot, results):
 
     if latest_ratio["operating_profit_margin_pct"] > 25:
 
-        confidence = min(
-            100,
-            int(
-                latest_ratio["operating_profit_margin_pct"] * 3
-            )
-        )
+        confidence = min(100, int(latest_ratio["operating_profit_margin_pct"] * 3))
 
         add_signal(
             results,
@@ -343,6 +317,7 @@ def pro_rule_5(company_id, snapshot, results):
             "Operating profit margin above 25% indicates strong pricing power and cost discipline.",
             confidence,
         )
+
 
 def pro_rule_6(company_id, snapshot, results):
 
@@ -357,10 +332,7 @@ def pro_rule_6(company_id, snapshot, results):
 
     if cagr > 20:
 
-        confidence = min(
-            100,
-            int(cagr * 3)
-        )
+        confidence = min(100, int(cagr * 3))
 
         add_signal(
             results,
@@ -370,6 +342,7 @@ def pro_rule_6(company_id, snapshot, results):
             "Net profit compounding at above 20% over 5 years creates significant shareholder value.",
             confidence,
         )
+
 
 def apply_pro_rules(
     company_id,
@@ -384,6 +357,7 @@ def apply_pro_rules(
     pro_rule_5(company_id, snapshot, results)
     pro_rule_6(company_id, snapshot, results)
 
+
 def pro_rule_7(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -391,10 +365,7 @@ def pro_rule_7(company_id, snapshot, results):
     if latest_ratio is None:
         return
 
-    if (
-        latest_ratio["interest_coverage"] > 10
-        or latest_ratio["debt_to_equity"] == 0
-    ):
+    if latest_ratio["interest_coverage"] > 10 or latest_ratio["debt_to_equity"] == 0:
 
         add_signal(
             results,
@@ -404,6 +375,8 @@ def pro_rule_7(company_id, snapshot, results):
             "Very high interest coverage ratio reflects negligible financial stress from debt servicing.",
             90,
         )
+
+
 def pro_rule_8(company_id, snapshot, results):
     """
     Skipped.
@@ -411,6 +384,7 @@ def pro_rule_8(company_id, snapshot, results):
     Dataset does not contain Dividend Yield.
     """
     return
+
 
 def pro_rule_9(company_id, snapshot, results):
 
@@ -436,6 +410,7 @@ def pro_rule_9(company_id, snapshot, results):
             confidence,
         )
 
+
 def pro_rule_10(company_id, snapshot, results):
 
     if consecutive_increasing(
@@ -452,6 +427,8 @@ def pro_rule_10(company_id, snapshot, results):
             "Return on equity improving for 3 consecutive years shows strengthening business quality.",
             85,
         )
+
+
 def pro_rule_11(company_id, snapshot, results):
 
     revenue = compute_cagr(
@@ -480,6 +457,7 @@ def pro_rule_11(company_id, snapshot, results):
             90,
         )
 
+
 def pro_rule_12(company_id, snapshot, results):
 
     bs = snapshot["bs"]
@@ -504,6 +482,7 @@ def pro_rule_12(company_id, snapshot, results):
             88,
         )
 
+
 def con_rule_1(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -521,6 +500,8 @@ def con_rule_1(company_id, snapshot, results):
             f"Debt-to-equity ratio of {latest_ratio['debt_to_equity']:.2f} is elevated for a non-financial company and warrants monitoring.",
             90,
         )
+
+
 def con_rule_2(company_id, snapshot, results):
 
     recent = last_n(
@@ -542,6 +523,7 @@ def con_rule_2(company_id, snapshot, results):
             90,
         )
 
+
 def con_rule_3(company_id, snapshot, results):
 
     if consecutive_decreasing(
@@ -558,6 +540,7 @@ def con_rule_3(company_id, snapshot, results):
             "Operating margins declining for 3 consecutive years suggest pricing or cost pressure.",
             85,
         )
+
 
 def con_rule_4(company_id, snapshot, results):
 
@@ -576,6 +559,7 @@ def con_rule_4(company_id, snapshot, results):
             "Company reported a net loss in the most recent financial year.",
             95,
         )
+
 
 def con_rule_5(company_id, snapshot, results):
 
@@ -598,6 +582,7 @@ def con_rule_5(company_id, snapshot, results):
             85,
         )
 
+
 def con_rule_6(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -615,6 +600,7 @@ def con_rule_6(company_id, snapshot, results):
             "Interest coverage ratio below 1.5x indicates the company is at risk of not meeting its debt obligations.",
             95,
         )
+
 
 def apply_pro_rules(company_id, snapshot, results):
 
@@ -641,6 +627,7 @@ def apply_con_rules(company_id, snapshot, results):
     con_rule_5(company_id, snapshot, results)
     con_rule_6(company_id, snapshot, results)
 
+
 def con_rule_7(company_id, snapshot, results):
 
     latest_ratio = latest(snapshot["ratios"])
@@ -659,6 +646,7 @@ def con_rule_7(company_id, snapshot, results):
             92,
         )
 
+
 def con_rule_8(company_id, snapshot, results):
 
     if consecutive_increasing(
@@ -675,6 +663,7 @@ def con_rule_8(company_id, snapshot, results):
             "Rising debt-to-equity ratio over 3 years suggests increasing financial leverage risk.",
             86,
         )
+
 
 def con_rule_9(company_id, snapshot, results):
 
@@ -693,11 +682,13 @@ def con_rule_9(company_id, snapshot, results):
             88,
         )
 
+
 def con_rule_10(company_id, snapshot, results):
     """
     ROCE not available in dataset.
     """
     return
+
 
 def con_rule_11(company_id, snapshot, results):
     """
@@ -705,6 +696,7 @@ def con_rule_11(company_id, snapshot, results):
     from available datasets.
     """
     return
+
 
 def con_rule_12(company_id, snapshot, results):
 
@@ -727,6 +719,7 @@ def con_rule_12(company_id, snapshot, results):
             "Revenue growing at below 5% over 5 years lags inflation and suggests limited business momentum.",
             84,
         )
+
 
 def apply_con_rules(company_id, snapshot, results):
 
@@ -772,15 +765,14 @@ def generate(companies, ratios, pl, bs, cf):
 
     return pd.DataFrame(results)
 
+
 def verify(df, companies):
 
     verified = []
 
     for company in companies["id"]:
 
-        company_rows = df[
-            df.company_id == company
-        ]
+        company_rows = df[df.company_id == company]
 
         if not (company_rows["type"] == "pro").any():
 
@@ -813,6 +805,7 @@ def verify(df, companies):
         )
 
     return df
+
 
 def main():
 
@@ -853,4 +846,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
